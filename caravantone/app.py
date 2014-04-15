@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask
-import view
+import caravantone.view as view
 
 app = Flask(__name__)
 view.configure(app)
