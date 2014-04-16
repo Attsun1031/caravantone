@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+def index():
+    return "index World!"
+
 def configure(app):
-    @app.route("/index")
-    def index():
-        return "index World!"
+    app.route("/index")(index)
