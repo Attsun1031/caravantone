@@ -1,10 +1,9 @@
-* ログイン
-  * twitter (oauth1)
+* sign in
   * google (oauth2?)
   * facebook (oauth2?)
   * yahoo japan (oauth1)
   * hatena (oauth1)
-* 特定アーティストの更新情報を見る
+* update infos for artist
   * twitter
   * youtube
   * facebook
