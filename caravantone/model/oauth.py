@@ -4,6 +4,7 @@ from enum import Enum
 from requests_oauthlib import OAuth1Session
 
 
+# TODO: Redisで。
 secret = None
 
 
@@ -13,7 +14,11 @@ class Provider(Enum):
 
     twitter = ('twitter', '', '', 'https://api.twitter.com/oauth/request_token',
                'https://api.twitter.com/oauth/authenticate', 'https://api.twitter.com/oauth/access_token',
-               'http://192.168.56.101:5000/login/oauth')
+               'http://192.168.56.101:5000/login/twitter/authorize')
+
+    hatena = ('hatena', '', '', 'https://www.hatena.com/oauth/initiate',
+              'https://www.hatena.ne.jp/oauth/authorize', 'https://www.hatena.com/oauth/token',
+              'http://192.168.56.101:5000/login/hatena/authorize')
 
     def __init__(self, provider_name, consumer_key, consumer_secret, request_token_uri,
                  authorization_uri,  access_token_uri,  callback_uri):
@@ -48,6 +53,7 @@ def generate_authorization_url(provider):
                             callback_uri=provider.callback_uri)
     res = session.fetch_request_token(provider.request_token_uri)
     secret = res.get('oauth_token_secret')
+    print("secret: {}".format(secret))
     return session.authorization_url(provider.authorization_uri, res.get('oauth_token')), res
 
 
@@ -59,6 +65,7 @@ def authorize_access(provider, authorization_response_url):
     :rtype: dict
     :return: access token
     """
+    print("secret(after): {}".format(secret))
     session = OAuth1Session(provider.consumer_key,
                             client_secret=provider.consumer_secret)
     res = session.parse_authorization_response(authorization_response_url)
