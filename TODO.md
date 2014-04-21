@@ -7,3 +7,5 @@
   * twitter
   * youtube
   * facebook
+  * blog
+  * media
