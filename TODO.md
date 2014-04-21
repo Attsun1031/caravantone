@@ -6,7 +6,7 @@
   * ~~hatena (oauth1)~~
 * update infos for artist
   * ~~youtube~~
-  * twitter (streaming api)
+  * ~~twitter (streaming api)~~
   * facebook
   * blog
   * media
@@ -14,3 +14,5 @@
   * load data
   * search by keyword
   * auto completion
+
+* architecture design
