@@ -6,7 +6,7 @@
   * ~~hatena (oauth1)~~
 * update infos for artist
   * ~~youtube~~
-  * twitter
+  * twitter (streaming api)
   * facebook
   * blog
   * media
