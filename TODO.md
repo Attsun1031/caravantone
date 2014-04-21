@@ -10,6 +10,18 @@
   * facebook
   * blog
   * media
+    * amass
+    * ナタリー
+    * rockingon
+    * skream.jp
+    * BARKS
+* twitter (checked)
+  * music-man.net
+  * bluenote
+  * billboard
+  * universal
+  * tower record
+  * excite music
 * elastic search
   * load data
   * search by keyword
