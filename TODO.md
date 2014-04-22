@@ -22,6 +22,7 @@
   * universal
   * tower record
   * excite music
+* magazine
 * elastic search
   * load data
   * search by keyword
