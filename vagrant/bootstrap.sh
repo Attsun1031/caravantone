@@ -53,7 +53,6 @@ PATH="/opt/mysql/server-5.6/bin:$PATH"
 MANPATH="/opt/mysql/server-5.6/man:$MANPATH"
 EOF
 sudo chmod 755 /etc/profile.d/mysql.sh
-sudo rm -rf /etc/mysql
 #mysql_secure_installation
 
 
@@ -103,6 +102,7 @@ sudo $ES_PLUGIN -install polyfractal/elasticsearch-inquisitor
 sudo $ES_PLUGIN -install elasticsearch/elasticsearch-analysis-kuromoji/2.1.0
 sudo $ES_PLUGIN -install royrusso/elasticsearch-HQ
 
+sudo rm -rf /etc/mysql
 
 # for virtual
 sudo ufw disable
