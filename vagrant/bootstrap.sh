@@ -9,8 +9,7 @@ ES_PLUGIN=/usr/share/elasticsearch/bin/plugin
 # basic
 sudo apt-get update
 sudo mkdir -p $SRC
-sudo apt-get -y install make
-sudo apt-get -y install curl
+sudo apt-get -y install make curl lv
 sudo groupadd t-atsumi
 sudo useradd -m -d /home/t-atsumi -s /bin/bash -g t-atsumi t-atsumi
 sudo update-locale LANG=ja_JP.UTF-8
