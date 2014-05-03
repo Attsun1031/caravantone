@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask
-import caravantone.view as view
 
-dev_host = '192.168.33.10'
 app = Flask(__name__)
-view.configure(app)
-app.config['DB_URI'] = 'mysql://caravantone:caravantone@{}/caravantone?charset=utf8&use_unicode=0'.format(dev_host)
+app.config.from_object('caravantone.config.Config')
+
 
 if __name__ == "__main__":
-    app.debug = True
-    app.run(host=dev_host)
+    import caravantone.view as view
+    view.configure(app)
+    app.debug = app.config['DEBUG']
+    app.run(host=app.config['HOST'], port=app.config['PORT'])

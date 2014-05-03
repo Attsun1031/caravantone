@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from .index import configure as index_configure
-from .login import configure as login_configure
-
 
 def configure(app):
+    from .index import configure as index_configure
+    from .login import configure as login_configure
+
     '''configure all views'''
     @app.route("/")
     def hello():
