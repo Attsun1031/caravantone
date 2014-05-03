@@ -29,30 +29,30 @@ sudo make install
 # mysql
 sudo apt-get -y install libaio1
 
-sudo mkdir -p $MYSQL_DIR
-cd $MYSQL_DIR
+sudo mkdir -p ${MYSQL_DIR}
+cd ${MYSQL_DIR}
 sudo wget http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.17-debian6.0-x86_64.deb
 sudo dpkg -i mysql-5.6.17-debian6.0-x86_64.deb
 
-sudo cat <<EOF > /etc/my.cnf
-[mysqld]
-basedir = /opt/mysql/server-5.6
-datadir = /data/mysql
-EOF
+sudo cp -p my.cnf /etc/my.cnf
+sudo chown root:root /etc/my.cnf
+
+sudo mkdir /var/log/mysql
 sudo groupadd mysql
 sudo useradd -r -g mysql mysql
 sudo chown -R root:root /opt/mysql
 sudo chown -R mysql:mysql /opt/mysql/server-5.6
+sudo chown -R mysql:mysql /var/log/mysql
+
 sudo install -o mysql -g mysql -d /data/mysql
 sudo -u mysql /opt/mysql/server-5.6/scripts/mysql_install_db --user=mysql --datadir=/data/mysql
 sudo cp /opt/mysql/server-5.6/support-files/mysql.server /etc/init.d/mysql
 sudo update-rc.d mysql defaults
 sudo cat <<EOF > /etc/profile.d/mysql.sh
-PATH="/opt/mysql/server-5.6/bin:$PATH"
-MANPATH="/opt/mysql/server-5.6/man:$MANPATH"
+PATH="/opt/mysql/server-5.6/bin:${PATH}"
+MANPATH="/opt/mysql/server-5.6/man:${MANPATH}"
 EOF
 sudo chmod 755 /etc/profile.d/mysql.sh
-#mysql_secure_installation
 
 
 # redis
