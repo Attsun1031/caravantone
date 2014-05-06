@@ -2,6 +2,7 @@
 
 from flask import redirect, request
 from caravantone.model.oauth import generate_authorization_url, authorize_access, Provider
+from caravantone.model.user import sign_up_with_oauth
 
 
 def twitter():
@@ -10,7 +11,11 @@ def twitter():
 
 def twitter_authorize():
     tokens = authorize_access(Provider.twitter, request.url)
-    return ','.join([tokens.get('oauth_token'), tokens.get('oauth_token_secret')])
+    result = sign_up_with_oauth(tokens.get('oauth_token'), tokens.get('oauth_token_secret'), tokens.get('screen_name'))
+    if result:
+        return redirect('/')
+    else:
+        raise Exception()
 
 
 def hatena():
