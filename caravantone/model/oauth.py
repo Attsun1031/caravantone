@@ -4,6 +4,8 @@ from enum import Enum
 from redis import StrictRedis
 from requests_oauthlib import OAuth1Session
 
+from caravantone.app import app
+
 
 def generate_authorization_url(provider):
     """generate url for authorization
@@ -50,31 +52,36 @@ class Provider(Enum):
     """oauth provider
     """
 
-    twitter = ('twitter', 'https://api.twitter.com/oauth/request_token',
+    twitter = ('twitter', 1, 'https://api.twitter.com/oauth/request_token',
                'https://api.twitter.com/oauth/authenticate', 'https://api.twitter.com/oauth/access_token',
-               'http://192.168.56.101:5000/login/twitter/authorize')
+               '/login/twitter/authorize')
 
-    hatena = ('hatena', 'https://www.hatena.com/oauth/initiate',
+    hatena = ('hatena', 2, 'https://www.hatena.com/oauth/initiate',
               'https://www.hatena.ne.jp/oauth/authorize', 'https://www.hatena.com/oauth/token',
-              'http://192.168.56.101:5000/login/hatena/authorize')
+              '/login/hatena/authorize')
 
-    def __init__(self, provider_name, request_token_uri, authorization_uri,  access_token_uri,  callback_uri):
+    def __init__(self, provider_name, type_num, request_token_uri, authorization_uri,  access_token_uri,  callback_path):
         """constructor
 
         :param provider_name: name of provider
         :param request_token_uri: uri for request token
         :param authorization_uri: uri for authorization
         :param access_token_uri: uri for access token
-        :param callback_uri: callback uri after authorization
+        :param callback_path: callback path after authorization
         """
-        _redis_session = StrictRedis()
-
-        self.consumer_key = _redis_session.get(_generate_key(provider_name, 'consumer_key'))
-        self.consumer_secret = _redis_session.get(_generate_key(provider_name, 'consumer_secret'))
+        self.consumer_key = app.config.get('{}_CONSUMER_KEY'.format(provider_name.upper()))
+        self.consumer_secret = app.config.get('{}_CONSUMER_SECRET'.format(provider_name.upper()))
         self.provider_name = provider_name
+        self.type_num = type_num
         self.request_token_uri = request_token_uri
         self.authorization_uri = authorization_uri
         self.access_token_uri = access_token_uri
-        self.callback_uri = callback_uri
 
-
+        domain = app.config['HOST']
+        port = app.config['PORT']
+        scheme = 'http'
+        if port == 443:
+            scheme = 'https'
+        elif port != 80:
+            domain = '{}:{:d}'.format(domain, port)
+        self.callback_uri = '{}://{}{}'.format(scheme, domain, callback_path)

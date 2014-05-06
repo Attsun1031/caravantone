@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask
-import caravantone.view as view
 
 app = Flask(__name__)
-view.configure(app)
+app.config.from_object('caravantone.config.Config')
+
 
 if __name__ == "__main__":
-    app.debug = True
-    app.run(host='192.168.56.101')
+    import caravantone.view as view
+    view.configure(app)
+    app.debug = app.config['DEBUG']
+    app.run(host=app.config['HOST'], port=app.config['PORT'])
