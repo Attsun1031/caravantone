@@ -4,7 +4,8 @@ import caravantone.testing as testing
 testing.setup4testing()
 
 import caravantone.model.user as user
-from caravantone.dao import db_session, OauthToken, User
+import caravantone.model.artist as artist
+from caravantone.dao import db_session, OauthToken, User, Artist
 
 
 class TestWhenSignUpWithExistingOauth(testing.DBTestCaseBase):
@@ -69,6 +70,45 @@ class TestWhenCommitFailed(testing.DBTestCaseBase):
             user.sign_up_with_oauth('token', 'secret', 1, 'user1')
         self.assertIsNone(OauthToken.query.first())
         self.assertIsNone(User.query.first())
+
+
+class TestAddToStreamWhenSingle(testing.DBTestCaseBase):
+    def _setUp(self):
+        self.user = User(name='test_user')
+        self.artist = Artist(name='test_artist')
+        db_session.add_all([self.artist, self.user])
+        db_session.commit()
+
+    def test_then_the_artist_related_to_user(self):
+        # exercise SUT
+        user_model = user.find(self.user.id)
+        artist_model = artist.find(self.artist.id)
+        user_model.add_artists_to_stream(artist_model)
+
+        # verify
+        self.assertEqual(1, len(self.user.checked_artists))
+        self.assert_record_equal(self.artist, self.user.checked_artists[0])
+
+
+class TestAddToStreamWhenMulti(testing.DBTestCaseBase):
+    def _setUp(self):
+        self.user = User(name='test_user')
+        self.artist1 = Artist(name='test_artist1')
+        self.artist2 = Artist(name='test_artist2')
+        db_session.add_all([self.artist1, self.artist2, self.user])
+        db_session.commit()
+
+    def test_then_artists_related_to_user(self):
+        # exercise SUT
+        user_model = user.find(self.user.id)
+        artist_model1 = artist.find(self.artist1.id)
+        artist_model2 = artist.find(self.artist2.id)
+        user_model.add_artists_to_stream([artist_model1, artist_model2])
+
+        # verify
+        self.assertEqual(2, len(self.user.checked_artists))
+        self.assert_record_equal(self.artist1, self.user.checked_artists[0])
+        self.assert_record_equal(self.artist2, self.user.checked_artists[1])
 
 
 if __name__ == '__main__':

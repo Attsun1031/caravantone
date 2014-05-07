@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from sqlalchemy import Column, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import INTEGER
