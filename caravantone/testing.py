@@ -9,7 +9,11 @@ def setup4testing():
     app.config.from_object('caravantone.config.TestConfig')
 
 
-class DBTestCaseBase(TestCase):
+class TestCaseBase(TestCase):
+    pass
+
+
+class DBTestCaseBase(TestCaseBase):
     """base class for testing which touches database"""
 
     def setUp(self):

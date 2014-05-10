@@ -4,7 +4,7 @@ from sqlalchemy.dialects.mysql import INTEGER
 from caravantone.dao.base import Base
 
 
-class UserCheckedArtist(Base):
+class UserCheckedArtistRecord(Base):
 
     __tablename__ = 'user_checked_artists'
     __table_args__ = {'mysql_engine': 'innoDB'}

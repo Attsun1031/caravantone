@@ -5,15 +5,16 @@ testing.setup4testing()
 
 import caravantone.model.user as user
 import caravantone.model.artist as artist
-from caravantone.dao import db_session, OauthToken, User, Artist
+from caravantone.repository import user_repository, artist_repository
+from caravantone.dao import db_session, OauthTokenRecord, UserRecord, ArtistRecord
 
 
 class TestWhenSignUpWithExistingOauth(testing.DBTestCaseBase):
 
     def _setUp(self):
         self.user_name = 'user1'
-        self.u = User(name='user1')
-        self.o = OauthToken(provider_type=1, access_token='token', access_secret='secret', user=self.u)
+        self.u = UserRecord(name='user1')
+        self.o = OauthTokenRecord(provider_type=1, access_token='token', access_secret='secret', user=self.u)
         db_session.add_all([self.u, self.o])
         db_session.commit()
 
@@ -29,7 +30,7 @@ class TestWhenSignUpWithExistingOauth(testing.DBTestCaseBase):
         _ = user.sign_up_with_oauth('token', 'secret', 1, 'user1')
 
         # verify
-        self.assertEqual(len(OauthToken.query.all()), 1)
+        self.assertEqual(len(OauthTokenRecord.query.all()), 1)
 
 
 class TestWhenSignUpWithNewOauth(testing.DBTestCaseBase):
@@ -45,16 +46,16 @@ class TestWhenSignUpWithNewOauth(testing.DBTestCaseBase):
         _ = user.sign_up_with_oauth('token', 'secret', 1, 'user1')
 
         # verify
-        u = User(id=1, name='user1')
-        self.assert_record_equal(u, User.query.first())
+        u = UserRecord(id=1, name='user1')
+        self.assert_record_equal(u, UserRecord.query.first())
 
     def test_then_new_oauth_token_registered(self):
         # exercise SUT
         _ = user.sign_up_with_oauth('token', 'secret', 1, 'user1')
 
         # verify
-        o = OauthToken(access_token='token', access_secret='secret', user_id=1, provider_type=1)
-        self.assert_record_equal(o, OauthToken.query.first())
+        o = OauthTokenRecord(access_token='token', access_secret='secret', user_id=1, provider_type=1)
+        self.assert_record_equal(o, OauthTokenRecord.query.first())
 
 
 class TestWhenCommitFailed(testing.DBTestCaseBase):
@@ -68,14 +69,14 @@ class TestWhenCommitFailed(testing.DBTestCaseBase):
     def test_then_rollback_and_raise_exception(self):
         with self.assertRaises(Exception):
             user.sign_up_with_oauth('token', 'secret', 1, 'user1')
-        self.assertIsNone(OauthToken.query.first())
-        self.assertIsNone(User.query.first())
+        self.assertIsNone(OauthTokenRecord.query.first())
+        self.assertIsNone(UserRecord.query.first())
 
 
 class TestAddToStreamWhenSingle(testing.DBTestCaseBase):
     def _setUp(self):
-        self.user = User(name='test_user')
-        self.artist = Artist(name='test_artist')
+        self.user = UserRecord(name='test_user')
+        self.artist = ArtistRecord(name='test_artist')
         db_session.add_all([self.artist, self.user])
         db_session.commit()
 
@@ -83,7 +84,7 @@ class TestAddToStreamWhenSingle(testing.DBTestCaseBase):
         # exercise SUT
         user_model = user.find(self.user.id)
         artist_model = artist.find(self.artist.id)
-        user_model.add_artists_to_stream(artist_model)
+        user_model.check_artists(artist_model)
 
         # verify
         self.assertEqual(1, len(self.user.checked_artists))
@@ -92,23 +93,26 @@ class TestAddToStreamWhenSingle(testing.DBTestCaseBase):
 
 class TestAddToStreamWhenMulti(testing.DBTestCaseBase):
     def _setUp(self):
-        self.user = User(name='test_user')
-        self.artist1 = Artist(name='test_artist1')
-        self.artist2 = Artist(name='test_artist2')
+        self.user = UserRecord(name='test_user')
+        self.artist1 = ArtistRecord(name='test_artist1')
+        self.artist2 = ArtistRecord(name='test_artist2')
         db_session.add_all([self.artist1, self.artist2, self.user])
         db_session.commit()
 
     def test_then_artists_related_to_user(self):
         # exercise SUT
-        user_model = user.find(self.user.id)
-        artist_model1 = artist.find(self.artist1.id)
-        artist_model2 = artist.find(self.artist2.id)
-        user_model.add_artists_to_stream([artist_model1, artist_model2])
+        user_model = user_repository.find_by_id(self.user.id)
+        artist_model1 = artist_repository.find_by_id(self.artist1.id)
+        artist_model2 = artist_repository.find_by_id(self.artist2.id)
+        user_model.check_artists([artist_model1, artist_model2])
+
+        user_repository.save(user_model, flush=True)
 
         # verify
-        self.assertEqual(2, len(self.user.checked_artists))
-        self.assert_record_equal(self.artist1, self.user.checked_artists[0])
-        self.assert_record_equal(self.artist2, self.user.checked_artists[1])
+        user_model = user_repository.find_by_id(self.user.id)
+        self.assertEqual(2, len(user_model.checked_artists))
+        self.assertEqual(artist_model1, user_model.checked_artists[0])
+        self.assertEqual(artist_model2, user_model.checked_artists[1])
 
 
 if __name__ == '__main__':

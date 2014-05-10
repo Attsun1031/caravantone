@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.orm import load_only
-from caravantone.dao import UserCheckedArtist, OauthToken, User as UserDao, db_session, commit_with_fallback
+from caravantone.dao import OauthTokenRecord, UserRecord as UserDao, db_session, commit_with_fallback
+from caravantone.model.base import Entity, Field
 
 
-_load_oauth_token_with_only_private_key = OauthToken.query.options(load_only("user_id", "provider_type"))
+_load_oauth_token_with_only_private_key = OauthTokenRecord.query.options(load_only("user_id", "provider_type"))
 def sign_up_with_oauth(token, secret, provider_type, name, profile=None, suspend_commit=False):
     """register both oauth_token and user.
      if oauth_token has already exist, return the user id.
@@ -17,9 +18,9 @@ def sign_up_with_oauth(token, secret, provider_type, name, profile=None, suspend
     :return: user id
     :rtype: int
     """
-    conditions = (OauthToken.access_token == token,
-                  OauthToken.access_secret == secret,
-                  OauthToken.provider_type == provider_type)
+    conditions = (OauthTokenRecord.access_token == token,
+                  OauthTokenRecord.access_secret == secret,
+                  OauthTokenRecord.provider_type == provider_type)
     oauth_token = _load_oauth_token_with_only_private_key.filter(*conditions).first()
 
     if oauth_token:
@@ -27,7 +28,7 @@ def sign_up_with_oauth(token, secret, provider_type, name, profile=None, suspend
 
     else:
         new_user = sign_up(name, profile=profile)
-        new_oauth_token = OauthToken(access_token=token, access_secret=secret,
+        new_oauth_token = OauthTokenRecord(access_token=token, access_secret=secret,
                                      provider_type=provider_type, user=new_user)
         db_session.add(new_oauth_token)
         if not suspend_commit:
@@ -48,42 +49,20 @@ def sign_up(name, profile=None):
     return user
 
 
-class User(object):
+class User(Entity):
 
-    def __init__(self, name, profile=None, source=None, suspend_commit=True):
-        self.__name = name
-        self.__profile = profile
-        if source:
-            self.__source = source
-        else:
-            self.__source = UserDao(name=name, profile=profile)
-            db_session.add(self.__source)
-            if not suspend_commit:
-                commit_with_fallback(db_session)
+    __fields__ = (Field('id', mandatory=True), Field('name', mandatory=True), Field('profile'), Field('checked_artists'))
 
-    @property
-    def id(self):
-        return self.__source.id
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        if not self._checked_artists:
+            self._checked_artists = []
 
-    def add_artists_to_stream(self, artists, suspend_commit=False):
+    def check_artists(self, artists):
         """add artists to my stream.
 
         :param [Artist] or Artist artists: artists (both one object and collection is acceptable)
         """
         if not isinstance(artists, (list, tuple)):
             artists = [artists]
-        db_session.add_all([UserCheckedArtist(user_id=self.__source.id, artist_id=a.id) for a in artists])
-        if not suspend_commit:
-            commit_with_fallback(db_session)
-
-    @classmethod
-    def find(cls, user_id):
-        user = UserDao.query.get(user_id)
-        return cls._map(user)
-
-    @classmethod
-    def _map(cls, source):
-        return cls(source.name, source.profile, source=source)
-
-
-find = User.find
+        self.checked_artists.extend(artists)
