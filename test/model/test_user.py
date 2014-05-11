@@ -82,13 +82,15 @@ class TestAddToStreamWhenSingle(testing.DBTestCaseBase):
 
     def test_then_the_artist_related_to_user(self):
         # exercise SUT
-        user_model = user.find(self.user.id)
-        artist_model = artist.find(self.artist.id)
+        user_model = user_repository.find_by_id(self.user.id)
+        artist_model = artist_repository.find_by_id(self.artist.id)
         user_model.check_artists(artist_model)
+        user_repository.save(user_model)
 
         # verify
-        self.assertEqual(1, len(self.user.checked_artists))
-        self.assert_record_equal(self.artist, self.user.checked_artists[0])
+        user_model = user_repository.find_by_id(self.user.id)
+        self.assertEqual(1, len(user_model.checked_artists))
+        self.assertEqual(artist_model, user_model.checked_artists[0])
 
 
 class TestAddToStreamWhenMulti(testing.DBTestCaseBase):

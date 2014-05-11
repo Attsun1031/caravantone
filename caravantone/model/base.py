@@ -10,7 +10,7 @@ def _get_method(attr):
 
 class EntityMeta(type):
     def __new__(cls, name, bases, namespace, **kwargs):
-        for f in namespace.get('__fields__', []):
+        for f in namespace['__fields__']:
             namespace[f.name] = property(_get_method(f.name))
         return type.__new__(cls, name, bases, dict(namespace))
 
@@ -26,6 +26,7 @@ class Entity(metaclass=EntityMeta):
             setattr(self, '_{}'.format(f.name), kwargs.get(f.name, f.default))
 
     def __eq__(self, other):
+        # Is it non-sense to compare other values except ID...?
         for f in self.__fields__:
             if getattr(self, f.name) != getattr(other, f.name):
                 return False

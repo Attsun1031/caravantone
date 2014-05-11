@@ -1,21 +1,8 @@
 # -*- coding: utf-8 -*-
-from caravantone.repository.base import Repository, MapperBase
-from caravantone.repository.strategy import DBStrategy
+from caravantone.repository.base import RepositoryBase, MapperBase, DBSupport
 from caravantone.repository.artist import ArtistMapper
-from caravantone.dao import UserRecord
+from caravantone.dao import UserRecord, OauthTokenRecord
 from caravantone.model.user import User
-
-
-class UserRepository(Repository):
-
-    def __init__(self):
-        self.__db_strategy = DBStrategy(UserRecord, UserMapper(ArtistMapper()))
-
-    def find_by_id(self, ident):
-        return self.__db_strategy.find_by_id(ident)
-
-    def save(self, model, flush=True):
-        self.__db_strategy.save(model, flush=flush)
 
 
 class UserMapper(MapperBase):
@@ -35,3 +22,11 @@ class UserMapper(MapperBase):
             data = UserRecord(name=model.name, profile=model.profile)
         data.checked_artists = artist_records
         return data
+
+
+class UserRepositoryBase(DBSupport, RepositoryBase):
+
+    _dao_class = UserRecord
+
+    _mapper = UserMapper(ArtistMapper())
+    #_load_oauth_token_with_only_private_key = OauthTokenRecord.query.options(load_only("user_id", "provider_type"))

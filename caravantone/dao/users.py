@@ -12,10 +12,12 @@ class UserRecord(Base):
     __table_args__ = {'mysql_engine': 'innoDB'}
 
     id = Column(INTEGER(unsigned=True), primary_key=True)
-    name =Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)
     profile = Column(Text, nullable=True)
 
     checked_artists = relationship('ArtistRecord',
                                    secondary=UserCheckedArtistRecord.__table__,
                                    backref='users',
                                    innerjoin=True)
+
+    oauth_tokens = relationship('OauthTokenRecord', backref='user')

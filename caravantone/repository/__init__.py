@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from .user import UserRepository
-from .artist import ArtistRepository
+from .user import UserRepositoryBase
+from .artist import ArtistRepositoryBase
 
 
-user_repository = UserRepository()
-artist_repository = ArtistRepository()
+user_repository = UserRepositoryBase()
+artist_repository = ArtistRepositoryBase()
