@@ -51,12 +51,14 @@ def sign_up(name, profile=None):
 
 class User(Entity):
 
-    __fields__ = (Field('id', mandatory=True), Field('name', mandatory=True), Field('profile'), Field('checked_artists'))
+    def __get_artists(self):
+        from caravantone.repository import artist_repository
+        if self._checked_artists is None:
+            self._checked_artists = list(artist_repository.find_by_user_id(self.id))
+        return self._checked_artists
 
-    def __init__(self, **kwargs):
-        super(User, self).__init__(**kwargs)
-        if not self._checked_artists:
-            self._checked_artists = []
+    __fields__ = (Field('id', mandatory=True), Field('name', mandatory=True), Field('profile'),
+                  Field('checked_artists', fget=__get_artists), Field('oauth_tokens'))
 
     def check_artists(self, artists):
         """add artists to my stream.

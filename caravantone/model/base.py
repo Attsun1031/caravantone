@@ -11,7 +11,8 @@ def _get_method(attr):
 class EntityMeta(type):
     def __new__(cls, name, bases, namespace, **kwargs):
         for f in namespace['__fields__']:
-            namespace[f.name] = property(_get_method(f.name))
+            fget = _get_method(f.name) if f.fget is None else f.fget
+            namespace[f.name] = property(fget)
         return type.__new__(cls, name, bases, dict(namespace))
 
 
@@ -35,7 +36,8 @@ class Entity(metaclass=EntityMeta):
 
 
 class Field(object):
-    def __init__(self, name, default=None, mandatory=False):
+    def __init__(self, name, default=None, mandatory=False, fget=None):
         self.name = name
         self.default = default
         self.mandatory = mandatory
+        self.fget = fget

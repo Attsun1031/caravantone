@@ -4,7 +4,6 @@ import caravantone.testing as testing
 testing.setup4testing()
 
 import caravantone.model.user as user
-import caravantone.model.artist as artist
 from caravantone.repository import user_repository, artist_repository
 from caravantone.dao import db_session, OauthTokenRecord, UserRecord, ArtistRecord
 

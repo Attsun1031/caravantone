@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from caravantone.repository.base import RepositoryBase, MapperBase, DBSupport
-from caravantone.dao import ArtistRecord
+from caravantone.dao import ArtistRecord, UserCheckedArtistRecord
 from caravantone.model.artist import Artist
 
 
@@ -16,10 +16,14 @@ class ArtistMapper(MapperBase):
         return data
 
 
-class ArtistRepositoryBase(DBSupport, RepositoryBase):
+class ArtistRepository(DBSupport, RepositoryBase):
 
     _dao_class = ArtistRecord
 
     _mapper = ArtistMapper()
 
+    _query_for_find_by_user_id = ArtistRecord.query.join(UserCheckedArtistRecord)
 
+    def find_by_user_id(self, user_id):
+        condition = (UserCheckedArtistRecord.user_id == user_id,)
+        return map(self._mapper.data2model, self._query_for_find_by_user_id.filter(*condition).all())
