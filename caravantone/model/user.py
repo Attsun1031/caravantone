@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-
-from sqlalchemy.orm import load_only
 from caravantone.dao import OauthTokenRecord, UserRecord as UserDao, db_session, commit_with_fallback
 from caravantone.model.base import Entity, Field
+from caravantone.repository import user_repository
 
 
-_load_oauth_token_with_only_private_key = OauthTokenRecord.query.options(load_only("user_id", "provider_type"))
 def sign_up_with_oauth(token, secret, provider_type, name, profile=None, suspend_commit=False):
     """register both oauth_token and user.
      if oauth_token has already exist, return the user id.
@@ -18,13 +16,11 @@ def sign_up_with_oauth(token, secret, provider_type, name, profile=None, suspend
     :return: user id
     :rtype: int
     """
-    conditions = (OauthTokenRecord.access_token == token,
-                  OauthTokenRecord.access_secret == secret,
-                  OauthTokenRecord.provider_type == provider_type)
-    oauth_token = _load_oauth_token_with_only_private_key.filter(*conditions).first()
 
-    if oauth_token:
-        return oauth_token.user_id
+    user = user_repository.find_by_oauth_token(token, secret, provider_type)
+
+    if user:
+        return user.id
 
     else:
         new_user = sign_up(name, profile=profile)
@@ -57,8 +53,13 @@ class User(Entity):
             self._checked_artists = list(artist_repository.find_by_user_id(self.id))
         return self._checked_artists
 
+    def __get_oauth_tokens(self):
+        if self._oauth_tokens is None:
+            self._oauth_tokens = list(user_repository.get_oauth_tokens(self.id))
+        return self._oauth_tokens
+
     __fields__ = (Field('id', mandatory=True), Field('name', mandatory=True), Field('profile'),
-                  Field('checked_artists', fget=__get_artists), Field('oauth_tokens'))
+                  Field('checked_artists', fget=__get_artists), Field('oauth_tokens', fget=__get_oauth_tokens))
 
     def check_artists(self, artists):
         """add artists to my stream.
