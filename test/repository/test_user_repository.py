@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from caravantone.testing import setup4testing, TestCaseBase
+from caravantone.testing import setup4testing, TestCaseBase, assert_record_equal
 setup4testing()
 import caravantone.repository.user as user
 from caravantone.repository.artist import ArtistMapper
@@ -17,12 +17,18 @@ class TestUserMapperData2Model(TestCaseBase):
         self.assertIsNone(res._checked_artists)
         self.assertIsNone(res._oauth_tokens)
 
+        assert_record_equal(self, self.mapper.model2data(res), d)
+
     def test_with_artists_then_only_artists_loaded(self):
         artists = [ArtistRecord(name='pink floyd'), ArtistRecord(name='king crimson')]
         d = UserRecord(name='user', checked_artists=artists)
         res = self.mapper.data2model(d)
         self.assertEqual(len(res._checked_artists), len(artists))
+        for data, model in zip(artists, res._checked_artists):
+            self.assertEqual(data.name, model.name)
         self.assertIsNone(res._oauth_tokens)
+
+        assert_record_equal(self, self.mapper.model2data(res), d)
 
     def test_with_oauth_tokens_then_only_oauth_tokens_loaded(self):
         tokens = [OauthTokenRecord(user_id=1, provider_type=1), OauthTokenRecord(user_id=1, provider_type=2)]
@@ -30,6 +36,7 @@ class TestUserMapperData2Model(TestCaseBase):
         res = self.mapper.data2model(d)
         self.assertIsNone(res._checked_artists)
         self.assertEqual(len(res._oauth_tokens), len(tokens))
+        for data, model in zip(tokens, res._oauth_tokens):
+            self.assertEqual(data.provider_type, model.provider.type_num)
 
-
-# TODO: model2dataのテストを書く
+        assert_record_equal(self, self.mapper.model2data(res), d)

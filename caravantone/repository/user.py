@@ -70,7 +70,7 @@ class UserRepository(DBSupport, RepositoryBase):
             if one:
                 return self._mapper.data2model(data.first())
             else:
-                return [self._mapper.data2model(d) for d in data.all()]
+                return map(self._mapper.data2model, data.all())
 
     def get_oauth_tokens(self, user_id):
         # TODO: implement

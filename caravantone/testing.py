@@ -9,6 +9,19 @@ def setup4testing():
     app.config.from_object('caravantone.config.TestConfig')
 
 
+def assert_record_equal(obj, expected, actual):
+    """equality assertion function for sqlalchemy ORM object.
+
+    :param expected: expected object
+    :param actual: actual object
+    """
+    for column_name in actual.__table__.columns.keys():
+        e_attr = getattr(expected, column_name)
+        a_attr = getattr(actual, column_name)
+        msg = '{column_name} is not equal. expected: {e_attr}, actual: {a_attr}'.format(**locals())
+        obj.assertEqual(e_attr, a_attr, msg)
+
+
 class TestCaseBase(TestCase):
     pass
 
@@ -32,13 +45,4 @@ class DBTestCaseBase(TestCaseBase):
         pass
 
     def assert_record_equal(self, expected, actual):
-        """equality assertion function for sqlalchemy ORM object.
-
-        :param expected: expected object
-        :param actual: actual object
-        """
-        for column_name in actual.__table__.columns.keys():
-            e_attr = getattr(expected, column_name)
-            a_attr = getattr(actual, column_name)
-            msg = '{column_name} is not equal. expected: {e_attr}, actual: {a_attr}'.format(**locals())
-            self.assertEqual(e_attr, a_attr, msg)
+        assert_record_equal(self, expected, actual)
