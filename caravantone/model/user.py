@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from caravantone.dao import OauthTokenRecord, UserRecord as UserDao, db_session, commit_with_fallback
 from caravantone.model.base import Entity, Field
+from caravantone.model.oauth import OauthToken
 from caravantone.repository import user_repository
 
 
-def sign_up_with_oauth(token, secret, provider_type, name, profile=None, suspend_commit=False):
+def sign_up_with_oauth(token, secret, provider_type, name, profile=None):
     """register both oauth_token and user.
      if oauth_token has already exist, return the user id.
 
@@ -13,36 +13,19 @@ def sign_up_with_oauth(token, secret, provider_type, name, profile=None, suspend
     :param int provider_type: provider number
     :param str name: user name
     :param str profile: user profile
-    :return: user id
-    :rtype: int
+    :return: user
+    :rtype: User
     """
-
     user = user_repository.find_by_oauth_token(token, secret, provider_type)
 
     if user:
-        return user.id
-
+        return user
     else:
-        new_user = sign_up(name, profile=profile)
-        new_oauth_token = OauthTokenRecord(access_token=token, access_secret=secret,
-                                     provider_type=provider_type, user=new_user)
-        db_session.add(new_oauth_token)
-        if not suspend_commit:
-            commit_with_fallback(db_session)
-        return new_user.id
-
-
-def sign_up(name, profile=None):
-    """register new user
-
-    :param name: user name
-    :param profile: user profile
-    :return: user
-    :rtype: UserDao
-    """
-    user = UserDao(name=name, profile=profile)
-    db_session.add(user)
-    return user
+        new_user = User(name=name, profile=profile)
+        new_oauth_token = OauthToken(access_token=token, access_secret=secret, provider_type=provider_type)
+        new_user.authorize_oauth(new_oauth_token)
+        user_repository.save(new_user)
+        return new_user
 
 
 class User(Entity):
@@ -58,7 +41,7 @@ class User(Entity):
             self._oauth_tokens = list(user_repository.get_oauth_tokens(self.id))
         return self._oauth_tokens
 
-    __fields__ = (Field('id', mandatory=True), Field('name', mandatory=True), Field('profile'),
+    __fields__ = (Field('id'), Field('name', mandatory=True), Field('profile'),
                   Field('checked_artists', fget=__get_artists), Field('oauth_tokens', fget=__get_oauth_tokens))
 
     def check_artists(self, artists):
@@ -69,3 +52,6 @@ class User(Entity):
         if not isinstance(artists, (list, tuple)):
             artists = [artists]
         self.checked_artists.extend(artists)
+
+    def authorize_oauth(self, oauth):
+        self.oauth_tokens.append(oauth)

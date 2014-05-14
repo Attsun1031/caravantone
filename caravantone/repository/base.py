@@ -30,12 +30,20 @@ class DBSupport(object):
             return data
 
     def save(self, model, flush=True):
-        self.session.add(self._mapper.model2data(model))
+        data = self._mapper.model2data(model)
+        self.session.add(data)
         if flush:
             try:
                 self.session.commit()
-            finally:
+            except Exception as e:
                 self.session.rollback()
+                raise e
+            else:
+                # if committed, data would be modified (ex: auto incremented id)
+                self._after_save(model, data)
+
+    def _after_save(self, model, data):
+        pass
 
 
 class MapperBase(metaclass=ABCMeta):

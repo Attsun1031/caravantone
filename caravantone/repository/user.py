@@ -64,14 +64,17 @@ class UserRepository(DBSupport, RepositoryBase):
                       OauthTokenRecord.access_secret == secret,
                       OauthTokenRecord.provider_type == provider_type)
         data = self._query_for_find_by_oauth_token.filter(*conditions)
-        if not data:
-            return None
-        else:
-            if one:
+        if one:
+            obj = data.first()
+            if obj is not None:
                 return self._mapper.data2model(data.first())
             else:
-                return map(self._mapper.data2model, data.all())
+                return None
+        else:
+            return map(self._mapper.data2model, data.all())
 
     def get_oauth_tokens(self, user_id):
-        # TODO: implement
-        pass
+        return map(self._mapper.data2model, OauthTokenRecord.query.filter(OauthTokenRecord.user_id == user_id))
+
+    def _after_save(self, model, data):
+        model._id = data.id
