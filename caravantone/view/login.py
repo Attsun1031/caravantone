@@ -11,7 +11,8 @@ def twitter():
 
 def twitter_authorize():
     tokens = authorize_access(Provider.twitter, request.url)
-    result = sign_up_with_oauth(tokens.get('oauth_token'), tokens.get('oauth_token_secret'), tokens.get('screen_name'))
+    result = sign_up_with_oauth(tokens.get('oauth_token'), tokens.get('oauth_token_secret'),
+                                Provider.twitter.type_num, tokens.get('screen_name'))
     if result:
         return redirect('/')
     else:
