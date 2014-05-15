@@ -11,6 +11,8 @@ class ArtistMapper(MapperBase):
     def model2data(self, model):
         if model.id is not None:
             data = ArtistRecord.query.get(model.id)
+            data.name = model.name
+            data.freebase_topic_id = model.freebase_topic_id
         else:
             data = ArtistRecord(name=model.name, freebase_topic_id=model.freebase_topic_id)
         return data

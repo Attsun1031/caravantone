@@ -41,7 +41,7 @@ class User(Entity):
             self._oauth_tokens = list(user_repository.get_oauth_tokens(self.id))
         return self._oauth_tokens
 
-    __fields__ = (Field('id'), Field('name', mandatory=True), Field('profile'),
+    __fields__ = (Field('id', primary=True), Field('name', mandatory=True), Field('profile'),
                   Field('checked_artists', fget=__get_artists), Field('oauth_tokens', fget=__get_oauth_tokens))
 
     def check_artists(self, artists):

@@ -54,8 +54,9 @@ class ValueObject(metaclass=FieldAccessorMeta):
 
 
 class Field(object):
-    def __init__(self, name, default=None, mandatory=False, fget=None):
+    def __init__(self, name, primary=False, default=None, mandatory=False, fget=None):
         self.name = name
+        self.primary = primary
         self.default = default
         self.mandatory = mandatory
         self.fget = fget

@@ -27,6 +27,8 @@ class UserMapper(MapperBase):
     def model2data(self, model):
         if model.id is not None:
             data = UserRecord.query.get(model.id)
+            data.name = model.name
+            data.profile = model.profile
         else:
             data = UserRecord(name=model.name, profile=model.profile)
 

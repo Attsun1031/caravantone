@@ -30,19 +30,19 @@ class DBTestCaseBase(TestCaseBase):
     """base class for testing which touches database"""
 
     def setUp(self):
+        from sqlalchemy.exc import OperationalError
         from caravantone.dao import Base
+        try:
+            Base.metadata.drop_all(checkfirst=False)
+        except OperationalError:
+            pass
         Base.metadata.create_all(checkfirst=False)
         self._setUp()
 
     def tearDown(self):
-        from caravantone.dao import Base, db_session
-        try:
-            db_session.close()
-        finally:
-            Base.metadata.drop_all(checkfirst=False)
+        from caravantone.dao import db_session
+        db_session.close()
 
     def _setUp(self):
         pass
 
-    def assert_record_equal(self, expected, actual):
-        assert_record_equal(self, expected, actual)

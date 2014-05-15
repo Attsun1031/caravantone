@@ -43,19 +43,22 @@ class TestWhenSignUpWithNewOauth(testing.DBTestCaseBase):
 
     def test_then_new_user_registered(self):
         # exercise SUT
-        _ = user.sign_up_with_oauth('token', 'secret', 1, 'user1')
+        model = user.sign_up_with_oauth('token', 'secret', 1, 'user1')
 
         # verify
-        u = UserRecord(id=1, name='user1')
-        self.assert_record_equal(u, UserRecord.query.first())
+        u = UserRecord.query.get(1)
+        self.assertEqual(u.name, model.name)
 
     def test_then_new_oauth_token_registered(self):
         # exercise SUT
-        _ = user.sign_up_with_oauth('token', 'secret', 1, 'user1')
+        u = user.sign_up_with_oauth('token', 'secret', 1, 'user1')
 
         # verify
-        o = OauthTokenRecord(access_token='token', access_secret='secret', user_id=1, provider_type=1)
-        self.assert_record_equal(o, OauthTokenRecord.query.first())
+        model = u.oauth_tokens[0]
+        record = OauthTokenRecord.query.first()
+        self.assertEqual(model.access_token, record.access_token)
+        self.assertEqual(model.access_secret, record.access_secret)
+        self.assertEqual(model.provider.type_num, record.provider_type)
 
 
 class TestAddToStreamWhenSingle(testing.DBTestCaseBase):

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-from caravantone.testing import setup4testing, TestCaseBase, assert_record_equal
+from caravantone.testing import setup4testing, TestCaseBase, assert_record_equal, DBTestCaseBase
 setup4testing()
 import caravantone.repository.user as user
+from caravantone.repository import user_repository
 from caravantone.repository.artist import ArtistMapper
+from caravantone.model.user import User
 from caravantone.dao import UserRecord, OauthTokenRecord, ArtistRecord
 
 
-class TestUserMapperData2Model(TestCaseBase):
+class TestUserMapper(TestCaseBase):
 
     def setUp(self):
         self.mapper = user.UserMapper(ArtistMapper(), user.OauthTokenMapper())
@@ -40,3 +42,24 @@ class TestUserMapperData2Model(TestCaseBase):
             self.assertEqual(data.provider_type, model.provider.type_num)
 
         assert_record_equal(self, self.mapper.model2data(res), d)
+
+
+class TestUserRepository(DBTestCaseBase):
+
+    def test_insert_user(self):
+        u = User(name='hoge')
+        user_repository.save(u)
+
+        record = UserRecord.query.get(1)
+        self.assertEqual(u.id, record.id)
+        self.assertEqual(u.name, record.name)
+
+    def test_update_user(self):
+        self.test_insert_user()
+
+        u = user_repository.find_by_id(1)
+        u._name = 'fuga'
+        user_repository.save(u)
+
+        record = UserRecord.query.get(1)
+        self.assertEqual(record.name, 'fuga')

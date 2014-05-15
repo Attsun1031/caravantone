@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import Column, String, Text
+import datetime
+
+from sqlalchemy import Column, String, Text, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import INTEGER
 from caravantone.dao.base import Base
@@ -21,3 +23,6 @@ class UserRecord(Base):
                                    innerjoin=True)
 
     oauth_tokens = relationship('OauthTokenRecord', backref='user')
+
+    registered_datetime = Column(DateTime, default=datetime.datetime.now)
+    updated_datetime = Column(DateTime, onupdate=datetime.datetime.now)
