@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-from flask import redirect, request
+from flask import redirect, request, session
 from caravantone.model.oauth import generate_authorization_url, authorize_access, Provider
 from caravantone.model.user import sign_up_with_oauth
 
@@ -11,11 +10,13 @@ def twitter():
 
 def twitter_authorize():
     tokens = authorize_access(Provider.twitter, request.url)
-    result = sign_up_with_oauth(tokens.get('oauth_token'), tokens.get('oauth_token_secret'),
-                                Provider.twitter.type_num, tokens.get('screen_name'))
-    if result:
+    user = sign_up_with_oauth(tokens.get('oauth_token'), tokens.get('oauth_token_secret'),
+                              Provider.twitter.type_num, tokens.get('screen_name'))
+    if user:
+        session['user_id'] = user.id
         return redirect('/')
     else:
+        # TODO: redirect and show errors
         raise Exception()
 
 

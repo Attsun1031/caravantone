@@ -23,7 +23,7 @@ class Entity(metaclass=FieldAccessorMeta):
     def __init__(self, **kwargs):
         for f in self.__fields__:
             if f.mandatory and f.name not in kwargs:
-                raise ValueError('field "" is missed'.format(f.name))
+                raise ValueError('field "{}" is missed'.format(f.name))
             setattr(self, '_{}'.format(f.name), kwargs.get(f.name, f.default))
 
     def __eq__(self, other):

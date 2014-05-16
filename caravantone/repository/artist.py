@@ -29,3 +29,10 @@ class ArtistRepository(DBSupport, RepositoryBase):
     def find_by_user_id(self, user_id):
         condition = (UserCheckedArtistRecord.user_id == user_id,)
         return map(self._mapper.data2model, self._query_for_find_by_user_id.filter(*condition).all())
+
+    def find_by_freebase_topic_id(self, freebase_topic_id):
+        data = ArtistRecord.query.filter(ArtistRecord.freebase_topic_id == freebase_topic_id).first()
+        if not data:
+            return None
+        else:
+            return self._mapper.data2model(data)

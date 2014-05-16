@@ -4,5 +4,7 @@
 def index():
     return "index World!"
 
+
 def configure(app):
-    app.route("/index")(index)
+    app.route("/artists")(index)
+

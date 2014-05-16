@@ -46,3 +46,13 @@ class DBTestCaseBase(TestCaseBase):
     def _setUp(self):
         pass
 
+
+class AppTestBase(DBTestCaseBase):
+
+    def setUp(self):
+        from caravantone import app
+        from caravantone.view import configure
+        configure(app)
+        app.config['TESTING'] = True
+        self.app = app.test_client()
+        super(AppTestBase, self).setUp()
