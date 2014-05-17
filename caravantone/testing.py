@@ -6,7 +6,10 @@ from unittest import TestCase
 def setup4testing():
     """overwrite configurations for testing"""
     from caravantone.app import app
+    from caravantone.view import configure
     app.config.from_object('caravantone.config.TestConfig')
+    configure(app)
+    app.config['TESTING'] = True
 
 
 def assert_record_equal(obj, expected, actual):
@@ -50,9 +53,6 @@ class DBTestCaseBase(TestCaseBase):
 class AppTestBase(DBTestCaseBase):
 
     def setUp(self):
-        from caravantone import app
-        from caravantone.view import configure
-        configure(app)
-        app.config['TESTING'] = True
+        from caravantone.app import app
         self.app = app.test_client()
         super(AppTestBase, self).setUp()

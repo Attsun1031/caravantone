@@ -7,10 +7,6 @@ def configure(app):
     from .login import configure as login_configure
     from .artist import configure as artists_configure
 
-    @app.route("/")
-    def hello():
-        return "Hello World!"
-
     index_configure(app)
     login_configure(app)
     artists_configure(app)

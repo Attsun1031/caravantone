@@ -94,6 +94,9 @@ sudo apt-get -y install libmysqlclient-dev
 sudo wget https://github.com/PyMySQL/mysqlclient-python/archive/1.3.0.tar.gz -O mysqlclient-python-1.3.0.tar.gz
 sudo pip3 install $SRC/mysqlclient-python-1.3.0.tar.gz
 
+# PyOpenSSL
+sudo apt-get install python-openssl libffi-dev
+sudo pip3.4 install PyOpenSSL
 
 # elasticsearch
 sudo apt-get -y install openjdk-7-jdk

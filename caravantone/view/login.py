@@ -13,6 +13,8 @@ def twitter_authorize():
     user = sign_up_with_oauth(tokens.get('oauth_token'), tokens.get('oauth_token_secret'),
                               Provider.twitter.type_num, tokens.get('screen_name'))
     if user:
+        # recreate session
+        _ = session.pop('usre_id', None)
         session['user_id'] = user.id
         return redirect('/')
     else:
