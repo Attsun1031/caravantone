@@ -29,10 +29,10 @@ class TestCaseBase(TestCase):
     pass
 
 
-class DBTestCaseBase(TestCaseBase):
-    """base class for testing which touches database"""
+class DBMixIn(object):
 
     def setUp(self):
+        super(DBMixIn, self).setUp()
         from sqlalchemy.exc import OperationalError
         from caravantone.dao import Base
         try:
@@ -40,19 +40,32 @@ class DBTestCaseBase(TestCaseBase):
         except OperationalError:
             pass
         Base.metadata.create_all(checkfirst=False)
-        self._setUp()
 
     def tearDown(self):
         from caravantone.dao import db_session
         db_session.close()
 
+
+class DBTestCaseBase(DBMixIn, TestCaseBase):
+    """base class for testing which touches database"""
+
+    def setUp(self):
+        super(DBTestCaseBase, self).setUp()
+        # avoid to write `super.setUp` at each subclass.
+        self._setUp()
+
     def _setUp(self):
         pass
 
 
-class AppTestBase(DBTestCaseBase):
+class AppTestBase(DBMixIn, TestCaseBase):
 
     def setUp(self):
+        super(AppTestBase, self).setUp()
         from caravantone.app import app
         self.app = app.test_client()
-        super(AppTestBase, self).setUp()
+        # avoid to write `super.setUp` at each subclass.
+        self._setUp()
+
+    def _setUp(self):
+        pass
