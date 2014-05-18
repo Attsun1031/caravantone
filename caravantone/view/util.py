@@ -9,7 +9,6 @@ from caravantone.repository import user_repository
 
 def require_login(f):
     """decorate function that require login session."""
-
     @wraps(f)
     def _wrapper(*args, **kwargs):
         if 'user_id' not in session:
