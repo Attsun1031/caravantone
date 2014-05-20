@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-
 from enum import Enum
+
 from redis import StrictRedis
 from requests_oauthlib import OAuth1Session
+from wtforms import Form, StringField, IntegerField, validators, Field
 
 from caravantone.app import app
-from caravantone.model.base import ValueObject, Field
+from caravantone.model.base import ValueObject
 
 
 def generate_authorization_url(provider):
@@ -88,10 +89,16 @@ class Provider(Enum):
         self.callback_uri = '{}://{}{}'.format(scheme, domain, callback_path)
 
 
+class OauthTokenForm(Form):
+    access_token = StringField(validators=[validators.DataRequired()])
+    access_secret = StringField(validators=[validators.DataRequired()])
+    provider_type = IntegerField()
+    provider = Field()
+
+
 class OauthToken(ValueObject):
 
-    __fields__ = (Field('access_token', mandatory=True), Field('access_secret', mandatory=True),
-                  Field('provider_type'), Field('provider'))
+    _form_class = OauthTokenForm
 
     def __init__(self, **kwargs):
         super(OauthToken, self).__init__(**kwargs)

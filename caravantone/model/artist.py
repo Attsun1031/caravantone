@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
-from caravantone.model.base import Entity, Field
+from wtforms import Form, StringField, IntegerField, validators
+from caravantone.model.base import Entity
+
+
+class ArtistForm(Form):
+    id = IntegerField()
+    name = StringField(validators=[validators.DataRequired()])
+    freebase_topic_id = StringField()
 
 
 class Artist(Entity):
 
-    __fields__ = (Field('id'), Field('name', mandatory=True), Field('freebase_topic_id'))
+    _form_class = ArtistForm

@@ -33,7 +33,8 @@ class TestUserMapper(TestCaseBase):
         assert_record_equal(self, self.mapper.model2data(res), d)
 
     def test_with_oauth_tokens_then_only_oauth_tokens_loaded(self):
-        tokens = [OauthTokenRecord(user_id=1, provider_type=1), OauthTokenRecord(user_id=1, provider_type=2)]
+        tokens = [OauthTokenRecord(access_token='token1', access_secret='secret1', user_id=1, provider_type=1),
+                  OauthTokenRecord(access_token='token2', access_secret='secret2', user_id=1, provider_type=2)]
         d = UserRecord(name='user', oauth_tokens=tokens)
         res = self.mapper.data2model(d)
         self.assertIsNone(res._checked_artists)

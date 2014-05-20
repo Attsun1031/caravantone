@@ -4,6 +4,8 @@ import caravantone.testing as testing
 testing.setup4testing()
 
 import caravantone.model.user as user
+from caravantone.model.base import ValidationError
+from caravantone.model.artist import Artist
 from caravantone.repository import user_repository, artist_repository
 from caravantone.dao import db_session, OauthTokenRecord, UserRecord, ArtistRecord
 
@@ -61,14 +63,15 @@ class TestWhenSignUpWithNewOauth(testing.DBTestCaseBase):
         self.assertEqual(model.provider.type_num, record.provider_type)
 
 
-class TestAddToStreamWhenSingle(testing.DBTestCaseBase):
-    def _setUp(self):
+class TestAddArtists(testing.DBTestCaseBase):
+
+    def test_when_add_one_then_the_artist_related_to_user(self):
+        # setup
         self.user = UserRecord(name='test_user')
         self.artist = ArtistRecord(name='test_artist')
         db_session.add_all([self.artist, self.user])
         db_session.commit()
 
-    def test_then_the_artist_related_to_user(self):
         # exercise SUT
         user_model = user_repository.find_by_id(self.user.id)
         artist_model = artist_repository.find_by_id(self.artist.id)
@@ -80,16 +83,14 @@ class TestAddToStreamWhenSingle(testing.DBTestCaseBase):
         self.assertEqual(1, len(user_model.checked_artists))
         self.assertEqual(artist_model, user_model.checked_artists[0])
 
-
-class TestAddToStreamWhenMulti(testing.DBTestCaseBase):
-    def _setUp(self):
+    def test_when_add_multi_then_artists_related_to_user(self):
+        # setup
         self.user = UserRecord(name='test_user')
         self.artist1 = ArtistRecord(name='test_artist1')
         self.artist2 = ArtistRecord(name='test_artist2')
         db_session.add_all([self.artist1, self.artist2, self.user])
         db_session.commit()
 
-    def test_then_artists_related_to_user(self):
         # exercise SUT
         user_model = user_repository.find_by_id(self.user.id)
         artist_model1 = artist_repository.find_by_id(self.artist1.id)
@@ -103,6 +104,34 @@ class TestAddToStreamWhenMulti(testing.DBTestCaseBase):
         self.assertEqual(2, len(user_model.checked_artists))
         self.assertEqual(artist_model1, user_model.checked_artists[0])
         self.assertEqual(artist_model2, user_model.checked_artists[1])
+
+    def test_illegal_type(self):
+        a = Artist(name='the band')
+        u = user.User(name='user', checked_artists=[a])
+        self.assertEqual(u.checked_artists, [a])
+
+        with self.assertRaises(ValidationError):
+            user.User(name='user', checked_artists=[1])
+
+
+
+class TestLoadArtist(testing.DBTestCaseBase):
+    def test_lazy_load(self):
+        # setup
+        user = UserRecord(name='test_user')
+        artist = ArtistRecord(name='test_artist')
+        user.checked_artists.append(artist)
+        db_session.add(user)
+        db_session.commit()
+
+        # exercise SUT
+        user_model = user_repository.find_by_id(user.id)
+        artist_model = artist_repository.find_by_id(artist.id)
+
+        # not loaded before access
+        self.assertIsNone(user_model._checked_artists)
+        # loaded if touching accessor
+        self.assertEqual(user_model.checked_artists, [artist_model])
 
 
 if __name__ == '__main__':

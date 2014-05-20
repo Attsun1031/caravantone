@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+from flask.json import dumps
+from werkzeug.datastructures import MultiDict
+from wtforms import Form
+
+
+class ValidationError(Exception):
+    def __init__(self, *args, **kwargs):
+        errors = kwargs.pop('errors', None)
+        super(ValidationError, self).__init__(*args, **kwargs)
+        self.__errors = errors
+
+    @property
+    def errors(self):
+        return self.__errors
 
 
 def _get_method(attr):
@@ -8,46 +22,61 @@ def _get_method(attr):
     return fget
 
 
+def _set_method(attr):
+    attr_name = '_{}'.format(attr)
+    def fset(self, value):
+        setattr(self, attr_name, value)
+    return fset
+
+
 class FieldAccessorMeta(type):
     def __new__(cls, name, bases, namespace, **kwargs):
-        for f in namespace['__fields__']:
-            fget = _get_method(f.name) if f.fget is None else f.fget
-            namespace[f.name] = property(fget)
+        form_class = namespace['_form_class']
+        for name in dir(form_class):
+            if name.startswith('_'):
+                continue
+            unbound_field = getattr(form_class, name)
+            if not hasattr(unbound_field, '_formfield'):
+                continue
+
+            getter = '_get_{}'.format(name)
+            setter = '_set_{}'.format(name)
+            fget = namespace[getter] if getter in namespace else _get_method(name)
+            fset = namespace[setter] if setter in namespace else _set_method(name)
+            namespace[name] = property(fget, fset)
         return type.__new__(cls, name, bases, dict(namespace))
 
 
 class Entity(metaclass=FieldAccessorMeta):
 
-    __fields__ = []
+    _form_class = Form
 
     def __init__(self, **kwargs):
-        for f in self.__fields__:
-            if f.mandatory and f.name not in kwargs:
-                raise ValueError('field "{}" is missed'.format(f.name))
-            setattr(self, '_{}'.format(f.name), kwargs.get(f.name, f.default))
+        form = self._form_class(**kwargs)
+        if not form.validate():
+            raise ValidationError(dumps(form.errors), errors=form.errors)
+        form.populate_obj(self)
 
     def __eq__(self, other):
-        # Is it non-sense to compare other values except ID...?
-        for f in self.__fields__:
-            if getattr(self, f.name) != getattr(other, f.name):
-                return False
-        else:
+        if self.id is other.id:
             return True
+        else:
+            return False
 
 
 class ValueObject(metaclass=FieldAccessorMeta):
 
-    __fields__ = []
+    _form_class = Form
 
     def __init__(self, **kwargs):
-        for f in self.__fields__:
-            if f.mandatory and f.name not in kwargs:
-                raise ValueError('field "" is missed'.format(f.name))
-            setattr(self, '_{}'.format(f.name), kwargs.get(f.name, f.default))
+        form = self._form_class(MultiDict(kwargs))
+        if not form.validate():
+            raise ValidationError(dumps(form.errors), errors=form.errors)
+        form.populate_obj(self)
 
     def __eq__(self, other):
-        for f in self.__fields__:
-            if getattr(self, f.name) != getattr(other, f.name):
+        for f in self._form_class._unbound_fields:
+            if getattr(self, f[0]) != getattr(other, f[0]):
                 return False
         else:
             return True

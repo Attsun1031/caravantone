@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-from caravantone.model.base import Entity, Field
+from wtforms import Form, StringField, IntegerField, validators, Field
+
+from caravantone.model.base import Entity
+from caravantone.model.form import AggregateField, TypeOf
 from caravantone.model.oauth import OauthToken
+from caravantone.model.artist import Artist
 from caravantone.repository import user_repository
 
 
@@ -28,21 +32,28 @@ def sign_up_with_oauth(token, secret, provider_type, name, profile=None):
         return new_user
 
 
+class UserForm(Form):
+    id = IntegerField()
+    name = StringField(validators=[validators.DataRequired()])
+    profile = StringField()
+    checked_artists = AggregateField(Field(validators=[TypeOf(Artist)]))
+    oauth_tokens = AggregateField(Field(TypeOf(OauthToken)))
+
+
 class User(Entity):
 
-    def __get_artists(self):
+    _form_class = UserForm
+
+    def _get_checked_artists(self):
         from caravantone.repository import artist_repository
         if self._checked_artists is None:
             self._checked_artists = list(artist_repository.find_by_user_id(self.id))
         return self._checked_artists
 
-    def __get_oauth_tokens(self):
+    def _get_oauth_tokens(self):
         if self._oauth_tokens is None:
             self._oauth_tokens = list(user_repository.get_oauth_tokens(self.id))
         return self._oauth_tokens
-
-    __fields__ = (Field('id', primary=True), Field('name', mandatory=True), Field('profile'),
-                  Field('checked_artists', fget=__get_artists), Field('oauth_tokens', fget=__get_oauth_tokens))
 
     def check_artists(self, artists):
         """add artists to my stream.
