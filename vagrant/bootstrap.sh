@@ -2,16 +2,22 @@
 
 SRC="/usr/local/src"
 GIT="git-1.9.2"
-MYSQL_DIR=$SRC/mysql
-ES_DIR=$SRC/elasticsearch
+MYSQL_DIR=${SRC}/mysql
+ES_DIR=${SRC}/elasticsearch
 ES_PLUGIN=/usr/share/elasticsearch/bin/plugin
 
-# basic
+sudo mkdir -p ${SRC}
+
+# packages
 sudo apt-get update
-sudo mkdir -p $SRC
 sudo apt-get -y install make curl lv libsqlite3-dev
+
+# user
 sudo groupadd t-atsumi
 sudo useradd -m -d /home/t-atsumi -s /bin/bash -g t-atsumi t-atsumi
+
+# locale and date
+sudo cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 sudo update-locale LANG=ja_JP.UTF-8
 
 
@@ -88,6 +94,9 @@ sudo apt-get -y install libmysqlclient-dev
 sudo wget https://github.com/PyMySQL/mysqlclient-python/archive/1.3.0.tar.gz -O mysqlclient-python-1.3.0.tar.gz
 sudo pip3 install $SRC/mysqlclient-python-1.3.0.tar.gz
 
+# PyOpenSSL
+sudo apt-get install python-openssl libffi-dev
+sudo pip3.4 install PyOpenSSL
 
 # elasticsearch
 sudo apt-get -y install openjdk-7-jdk

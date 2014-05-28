@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-
 from enum import Enum
+
 from redis import StrictRedis
 from requests_oauthlib import OAuth1Session
+from wtforms import Form, StringField, IntegerField, validators, Field
 
 from caravantone.app import app
+from caravantone.model.base import ValueObject
 
 
 def generate_authorization_url(provider):
@@ -85,3 +87,25 @@ class Provider(Enum):
         elif port != 80:
             domain = '{}:{:d}'.format(domain, port)
         self.callback_uri = '{}://{}{}'.format(scheme, domain, callback_path)
+
+
+class OauthTokenForm(Form):
+    access_token = StringField(validators=[validators.DataRequired()])
+    access_secret = StringField(validators=[validators.DataRequired()])
+    provider_type = IntegerField()
+    provider = Field()
+
+
+class OauthToken(ValueObject):
+
+    _form_class = OauthTokenForm
+
+    def __init__(self, **kwargs):
+        super(OauthToken, self).__init__(**kwargs)
+        if self._provider is None and self._provider_type is None:
+            raise ValueError('provider_type or provider_type is required')
+        if self._provider is None:
+            valid_providers = [p for p in Provider if p.type_num == self._provider_type]
+            if not valid_providers:
+                raise ValueError('invalid provider_type: {}'.format(self._provider_type))
+            self._provider = valid_providers[0]

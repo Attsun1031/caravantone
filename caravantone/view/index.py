@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from caravantone import app
 
 
 def index():
-    return "index World!"
+    return app.send_static_file('index.html')
+
 
 def configure(app):
-    app.route("/index")(index)
+    app.route("/")(index)
+
