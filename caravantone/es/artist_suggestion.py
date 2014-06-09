@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from .base import ESDoc, Suggest, FailedToPutDoc
-from .api import es
+from .api import es, suggest
 
 
 class Artist(ESDoc):
     """artist doc_type on elasticsearch"""
-
-    index_type = 'caravantone'
 
     doc_type = 'artist'
 
@@ -27,7 +25,13 @@ class Artist(ESDoc):
 
     @classmethod
     def suggest(cls, text):
-        pass
+        results = []
+        for record in suggest(cls.index_type, text):
+            name = record['text']
+            artist_id = record['payload']['id']
+            score = int(record['score'])
+            results.append((score, Artist(artist_id, name)))
+        return [vs[1] for vs in sorted(results, key=lambda r: r[0])]
 
     def update(self):
         suggest = Suggest(self.name, payloads={'artist_id': self.artist_id})

@@ -1,0 +1,31 @@
+# create index
+PUT /caravantone
+
+# create mapping
+PUT /caravantone/artist/_mapping
+{
+  "artist": {
+    "properties": {
+      "name": {"type": "string"},
+      "suggest": {
+        "type": "completion",
+        "index_analyzer": "simple",
+        "search_analyzer": "simple",
+        "payloads": true
+      }
+    }
+  }
+}
+
+# this is sample for create record
+PUT /caravantone/artist/2?refresh=true
+{
+  "name": "King Crimson",
+  "suggest": {
+    "input": ["king crimson", "King Crimson"],
+    "output": "king crimson",
+    "payload": {
+      "id": 2
+    }
+  }
+}

@@ -17,6 +17,7 @@ class ValidationError(Exception):
 
 def _get_method(attr):
     attr_name = '_{}'.format(attr)
+
     def fget(self):
         return getattr(self, attr_name)
     return fget

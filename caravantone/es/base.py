@@ -18,7 +18,8 @@ def normalize(text):
 
 
 class ESDoc(object):
-    pass
+
+    index_type = 'caravantone'
 
 
 class ESException(CaravantoneException):
