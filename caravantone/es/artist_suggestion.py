@@ -25,8 +25,9 @@ class Artist(ESDoc):
 
     @classmethod
     def suggest(cls, text):
+        """Suggest artist by completion suggester"""
         results = []
-        for record in suggest(cls.index_type, text):
+        for record in suggest(cls.index_type, text.strip()):
             name = record['text']
             artist_id = record['payload']['id']
             score = int(record['score'])
@@ -34,6 +35,7 @@ class Artist(ESDoc):
         return [vs[1] for vs in sorted(results, key=lambda r: r[0])]
 
     def update(self):
+        """PUT new artist document into elasticsearch"""
         suggest = Suggest(self.name, payloads={'artist_id': self.artist_id})
         result = es.index(index=self.index_type, doc_type=self.doc_type,
                           id=getattr(self, self.id_name),
@@ -41,3 +43,8 @@ class Artist(ESDoc):
 
         if not result['created']:
             raise FailedToPutDoc(str(result))
+
+
+# suggest artist
+suggest_artist = Artist.suggest
+
