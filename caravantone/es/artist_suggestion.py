@@ -27,7 +27,7 @@ class Artist(ESDoc):
     def suggest(cls, text):
         """Suggest artist by completion suggester"""
         results = []
-        for record in suggest(cls.index_type, text.strip()):
+        for record in suggest(cls.index_type, text):
             name = record['text']
             artist_id = record['payload']['id']
             score = int(record['score'])
@@ -36,7 +36,7 @@ class Artist(ESDoc):
 
     def update(self):
         """PUT new artist document into elasticsearch"""
-        suggest = Suggest(self.name, payloads={'artist_id': self.artist_id})
+        suggest = Suggest(self.name, payloads={'id': self.artist_id})
         result = es.index(index=self.index_type, doc_type=self.doc_type,
                           id=getattr(self, self.id_name),
                           body={'name': self.name, 'suggest': suggest.to_dict()})

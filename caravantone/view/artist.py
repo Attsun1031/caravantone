@@ -2,6 +2,7 @@
 from flask import request, jsonify
 from caravantone.view.util import require_login
 from caravantone.model.artist import Artist
+from caravantone.es.artist_suggestion import suggest_artist
 from caravantone.repository import artist_repository, user_repository
 
 
@@ -15,6 +16,11 @@ def create(user):
     user_repository.save(user)
 
     return jsonify(name=artist.name)
+
+
+def suggest(name):
+    artists = suggest_artist(name)
+    return jsonify(candidates=[artist.name for artist in artists])
 
 
 def configure(app):
