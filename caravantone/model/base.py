@@ -2,17 +2,11 @@
 from flask.json import dumps
 from werkzeug.datastructures import MultiDict
 from wtforms import Form
+from caravantone.exception import CaravantoneException
 
 
-class ValidationError(Exception):
-    def __init__(self, *args, **kwargs):
-        errors = kwargs.pop('errors', None)
-        super(ValidationError, self).__init__(*args, **kwargs)
-        self.__errors = errors
-
-    @property
-    def errors(self):
-        return self.__errors
+class ValidationError(CaravantoneException):
+    """model validation error"""
 
 
 def _get_method(attr):

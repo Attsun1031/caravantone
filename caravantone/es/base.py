@@ -22,7 +22,9 @@ class ESDoc(object):
 
 
 class ESException(CaravantoneException):
-    pass
+    """Base exception class related to elasticsearch"""
+
+    default_code = 400
 
 
 class FailedToPutDoc(ESException):
