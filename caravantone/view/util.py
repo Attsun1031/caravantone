@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 
-from flask import session, abort, request
+from flask import session, abort
 from flask.json import dumps
+from flask.globals import current_app, request
 
 from caravantone.repository import user_repository
 
@@ -44,3 +45,15 @@ def validate(FormClass, on_error=_default_error_handler):
                 return f(*args, **kwargs)
         return _wrapper
     return _validate
+
+
+def jsonify_list(array):
+    """jsonify list object
+
+    :param list array: jsonifed
+    :return: Rseponse
+    """
+    indent = None
+    if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] and not request.is_xhr:
+        indent = 2
+    return current_app.response_class(dumps(array, indent=indent), mimetype='application/json')
