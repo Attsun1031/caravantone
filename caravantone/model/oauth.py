@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 
-from redis import StrictRedis
 from requests_oauthlib import OAuth1Session
 from wtforms import Form, StringField, IntegerField, validators, Field
 
 from caravantone.app import app
 from caravantone.model.base import ValueObject
+from caravantone.dao import redis_session
 
 
 def generate_authorization_url(provider):
@@ -21,7 +21,7 @@ def generate_authorization_url(provider):
                             callback_uri=provider.callback_uri)
     res = session.fetch_request_token(provider.request_token_uri)
     token = res['oauth_token']
-    StrictRedis().set(_generate_key(provider.provider_name, token), res['oauth_token_secret'])
+    redis_session.set(_generate_key(provider.provider_name, token), res['oauth_token_secret'])
     return session.authorization_url(provider.authorization_uri, token), res
 
 
@@ -37,7 +37,7 @@ def authorize_access(provider, authorization_response_url):
                             client_secret=provider.consumer_secret)
     res = session.parse_authorization_response(authorization_response_url)
 
-    secret = StrictRedis().get(_generate_key(provider.provider_name, res['oauth_token']))
+    secret = redis_session.get(_generate_key(provider.provider_name, res['oauth_token']))
     session = OAuth1Session(provider.consumer_key,
                             client_secret=provider.consumer_secret,
                             resource_owner_key=res.get('oauth_token'),
