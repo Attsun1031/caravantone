@@ -25,12 +25,16 @@ def search(keyword, cache_expiration=one_day, ignore_cache=False):
     :return: Youtube Video objects (iterator)
     :rtype: (YoutubeVideo)
     """
-    cache = redis_session.get(keyword)
+    if not keyword.strip():
+        raise ValueError('Empty keyword')
+
+    key = '{}:{}'.format('youtube_search', keyword)
+    cache = redis_session.get(key)
     if cache is None or ignore_cache:
         res = requests.get(youtube_api.format(keyword, app.config['YOUTUBE_DEVELOPER_KEY']))
         content = json.loads(res.content.decode('utf8'))
         items = content['items']
-        redis_session.setex(keyword, cache_expiration, json.dumps(items))
+        redis_session.setex(key, cache_expiration, json.dumps(items))
     else:
         items = json.loads(cache.decode('utf8'))
     yield from map(YoutubeVideo, items)
