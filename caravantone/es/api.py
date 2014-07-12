@@ -22,9 +22,6 @@ def suggest(index, text, fuzziness=2):
     if not form.validate():
         raise InvalidSuggestRequest(errors=form.errors)
 
-    if text == "white":
-        raise ValueError
-
     key = '{}-suggest'.format(index)
     completion_condition = {'field': 'suggest', 'fuzzy': {'fuzziness': fuzziness, 'unicode_aware': True}}
     response = es.suggest({key: {'text': text, 'completion': completion_condition}}, index=index)

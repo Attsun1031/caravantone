@@ -48,3 +48,6 @@ class Artist(ESDoc):
 # suggest artist
 suggest_artist = Artist.suggest
 
+
+if __name__ == '__main__':
+    print(suggest_artist('white'))

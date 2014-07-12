@@ -61,11 +61,11 @@ class YoutubeVideo(object):
         return self.item_data['snippet']['title']
 
     @cached_property
-    def video_url(self):
+    def url(self):
         return self.video_url_template.format(self.video_id)
 
 
 if __name__ == '__main__':
     for item in search('上原ひろみ'):
         print(item.item_data)
-        print(item.title, item.video_url)
+        print(item.title, item.url)
