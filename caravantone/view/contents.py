@@ -5,7 +5,7 @@ from caravantone.external.youtube import search as search_from_youtube
 
 
 @require_login
-def search(user):
+def index_contents(user):
     """search resource by keyword
 
     :param user: current user
@@ -19,4 +19,4 @@ def search(user):
 
 
 def configure(app):
-    app.route("/contents/search", methods=['GET'])(search)
+    app.route("/contents", methods=['GET'])(index_contents)

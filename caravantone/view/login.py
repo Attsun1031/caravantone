@@ -16,7 +16,7 @@ def twitter_authorize():
         # recreate session
         _ = session.pop('usre_id', None)
         session['user_id'] = user.id
-        return redirect('/')
+        return redirect('/user')
     else:
         # TODO: redirect and show errors
         raise Exception()

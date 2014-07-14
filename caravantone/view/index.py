@@ -8,4 +8,3 @@ def index():
 
 def configure(app):
     app.route("/")(index)
-

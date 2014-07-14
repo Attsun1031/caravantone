@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<h1>Hi, {{ user.name }} !!</h1>
+<div id="register_artist">
+    <span>アーティスト登録</span>
+    <form action="/artists" method="post">
+        <input type="text" name="name">
+        <input type="text" name="freebase_topic_id">
+        <button type="submit">送信</button>
+    </form>
+</div>
+<div id="search_from_youtube">
+    <span>動画検索</span>
+    <form action="/contents" method="get">
+        <input type="text" name="keyword">
+        <button type="submit">検索</button>
+    </form>
+</div>
+</body>
+</html>
