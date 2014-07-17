@@ -2,6 +2,7 @@
 from functools import wraps
 from flask import jsonify
 from caravantone.es.base import ESException
+from caravantone.app import app
 
 
 error_handler_mapping = {}
@@ -34,9 +35,12 @@ def handle_es_exception(error):
 
 @on_error(Exception)
 def handle_value_error(error):
-    response = jsonify({'error': 'Unknown error has occurred. {}'.format(str(error))})
-    response.status_code = 500
-    return response
+    if app.config['DEBUG']:
+        raise error
+    else:
+        response = jsonify({'error': 'Unknown error has occurred. {}'.format(str(error))})
+        response.status_code = 500
+        return response
 
 
 def configure(app):
