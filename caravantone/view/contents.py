@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from flask import request, jsonify, render_template
+
+from caravantone import app
 from caravantone.view.util import require_login
 from caravantone.external.youtube import search as search_from_youtube
 
 
+@app.route("/contents", methods=['GET'])
 @require_login
 def index_contents(user):
     """Search contents by keyword
@@ -29,7 +32,3 @@ def _format_published_at(value):
     '2014-01-01'
     """
     return value[:10]
-
-
-def configure(app):
-    app.route("/contents", methods=['GET'])(index_contents)
