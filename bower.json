@@ -1,0 +1,20 @@
+{
+  "name": "caravantone",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Homebrew/homebrew",
+  "authors": [
+    "Attsun <atsumi.tatsuya@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "~1.1.2",
+    "jquery": "~2.1.1"
+  }
+}
