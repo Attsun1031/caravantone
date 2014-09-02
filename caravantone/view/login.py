@@ -3,7 +3,19 @@ from flask import redirect, request, session
 
 from caravantone import app
 from caravantone.model.oauth import generate_authorization_url, authorize_access, Provider
-from caravantone.model.user import sign_up_with_oauth
+from caravantone.model.user import sign_up_with_oauth, login
+
+
+@app.route('/login/user', methods=['post'])
+def user():
+    u = login(request.form.get('name'), request.form.get('password'))
+    if u:
+        # recreate session
+        _ = session.pop('usre_id', None)
+        session['user_id'] = u.id
+        return redirect('/user')
+    else:
+        raise Exception('Failed to authenticate user')
 
 
 @app.route('/login/twitter')

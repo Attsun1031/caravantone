@@ -12,6 +12,15 @@
 <div>
     <a href="/login/hatena">はてなでログイン</a>
 </div>
+
+<div>
+    <div>ユーザー名でログイン</div>
+    <form action="/login/user" method="POST">
+        name: <input type="text" name="name">
+        password: <input type="password" name="password">
+        <button type="submit">ログイン</button>
+    </form>
+</div>
 </body>
 </html>
 

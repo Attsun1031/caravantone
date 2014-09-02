@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from hashlib import sha256
 from wtforms import Form, StringField, IntegerField, validators, Field
 
 from caravantone.model.base import Entity
@@ -32,12 +33,28 @@ def sign_up_with_oauth(token, secret, provider_type, name, profile=None):
         return new_user
 
 
+def login(name, password):
+    user = user_repository.find_by_name(name)
+    if user is not None and user.password == _get_hash(password):
+        return user
+    else:
+        return None
+
+
+def _get_hash(password):
+    return sha256(_salt + password.encode('utf-8', 'ignore')).hexdigest()
+
+
 class UserForm(Form):
     id = IntegerField()
     name = StringField(validators=[validators.DataRequired()])
     profile = StringField()
+    password = StringField()
     checked_artists = AggregateField(Field(validators=[TypeOf(Artist)]))
     oauth_tokens = AggregateField(Field(TypeOf(OauthToken)))
+
+
+_salt = b'hastings'
 
 
 class User(Entity):
@@ -66,3 +83,8 @@ class User(Entity):
 
     def authorize_oauth(self, oauth):
         self.oauth_tokens.append(oauth)
+
+    @classmethod
+    def make(cls, name, password):
+        return cls(name=name, password=_get_hash(password))
+
