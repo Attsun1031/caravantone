@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
-from flask import redirect, request, session
+from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPFound
 
-from caravantone import app
-from caravantone.model.oauth import generate_authorization_url, authorize_access, Provider
-from caravantone.model.user import sign_up_with_oauth, login
+from caravantone.model.user import login
 
 
-# TODO: pyramidを使うようにする。
-@app.route('/login/user', methods=['post'])
-def user():
-    u = login(request.form.get('name'), request.form.get('password'))
-    if u:
-        # recreate session
-        _ = session.pop('usre_id', None)
-        session['user_id'] = u.id
-        return redirect('/user')
-    else:
-        raise Exception('Failed to authenticate user')
+# @view_config(route_name='login', renderer='my_page.html')
+@view_config(route_name='login')
+def user(request):
+    u = login(request.POST.get('name'), request.POST.get('password'))
+    # if u:
+    #     # recreate session
+    #     _ = session.pop('usre_id', None)
+    #     session['user_id'] = u.id
+    #     return redirect('/user')
+    # else:
+    #     raise Exception('Failed to authenticate user')
+    return HTTPFound(location='/')
 
 
 # @app.route('/login/twitter')
