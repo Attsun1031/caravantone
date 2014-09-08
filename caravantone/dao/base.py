@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from redis import StrictRedis
-from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from caravantone import app
 
 
 def commit_with_fallback(session):
@@ -19,11 +17,7 @@ def commit_with_fallback(session):
         raise
 
 
-engine = create_engine(app.config['DB_URI'], convert_unicode=True)
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
-Base = declarative_base(bind=engine)
-Base.query = db_session.query_property()
+db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False))
+Base = declarative_base()
 
 redis_session = StrictRedis()
