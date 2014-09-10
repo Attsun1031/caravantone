@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 
-from flask import session, abort
-from flask.json import dumps
-from flask.globals import current_app, request
-
+from pyramid.security import authenticated_userid
+from pyramid.httpexceptions import HTTPUnauthorized
 from caravantone.repository import user_repository
 
 
 def require_login(f):
     """decorate function that require login session."""
     @wraps(f)
-    def _wrapper(*args, **kwargs):
-        if 'user_id' not in session:
-            abort(400, 'illegal session state')
-        user = user_repository.find_by_id(session['user_id'])
+    def _wrapper(request, *args, **kwargs):
+        auth = authenticated_userid(request)
+        if not auth:
+            return HTTPUnauthorized('No auth')
+        uid, _ = auth.split(':')
+        user = user_repository.find_by_id(uid)
         if not user:
-            abort(400, 'illegal session state')
-        kwargs['user'] = user
-        return f(*args, **kwargs)
+            HTTPUnauthorized('Illegal session state')
+        return f(request, *args, **kwargs)
     return _wrapper
 
 
+'''
 def _default_error_handler(form):
     abort(400, 'Illegal params: {}'.format(dumps(form.errors)))
 
@@ -57,3 +57,4 @@ def jsonify_list(array):
     if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] and not request.is_xhr:
         indent = 2
     return current_app.response_class(dumps(array, indent=indent), mimetype='application/json')
+'''

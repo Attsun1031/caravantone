@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from pyramid.config import Configurator
 from pyramid.static import static_view
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
 
 from sqlalchemy import engine_from_config
 
@@ -12,6 +14,7 @@ s_view = static_view('caravantone:static', use_subpath=True)
 
 def includeme(config):
     config.add_route('login', '/login/user')
+    config.add_route('login_test', '/login/test')
     config.scan('.view.login')
 
     # static view
@@ -34,5 +37,9 @@ def main(global_config, **settings):
     config.add_jinja2_renderer('.html')
     config.add_jinja2_search_path('caravantone:templates', name='.html')
     config.include('.')
+
+    # security
+    config.set_authentication_policy(AuthTktAuthenticationPolicy('__attsun__'))
+    config.set_authorization_policy(ACLAuthorizationPolicy())
 
     return config.make_wsgi_app()

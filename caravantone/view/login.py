@@ -1,23 +1,31 @@
 # -*- coding: utf-8 -*-
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound
+from pyramid.security import remember
+from pyramid.response import Response
 
-from caravantone.model.user import login
+from caravantone.view.util import require_login
+from caravantone.model.user import authenticate
 
 
 # @view_config(route_name='login', renderer='my_page.html')
 @view_config(route_name='login')
 def user(request):
-    u = login(request.POST.get('name'), request.POST.get('password'))
-    # if u:
-    #     # recreate session
-    #     _ = session.pop('usre_id', None)
-    #     session['user_id'] = u.id
-    #     return redirect('/user')
-    # else:
-    #     raise Exception('Failed to authenticate user')
-    return HTTPFound(location='/')
+    u = authenticate(request.POST.get('name'), request.POST.get('password'))
+    if u:
+        # recreate session
+        auth = remember(request, '{:d}:{}'.format(u.id, u.name))
+        response = HTTPFound(location='/login/test')
+        response.headerlist.extend(auth)
+        return response
+    else:
+        raise Exception('Failed to authenticate user')
 
+
+@view_config(route_name='login_test')
+@require_login
+def login_test(request):
+    return Response('OK')
 
 # @app.route('/login/twitter')
 # def twitter():

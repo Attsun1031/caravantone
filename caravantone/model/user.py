@@ -33,7 +33,7 @@ def sign_up_with_oauth(token, secret, provider_type, name, profile=None):
         return new_user
 
 
-def login(name, password):
+def authenticate(name, password):
     user = user_repository.find_by_name(name)
     if user is not None and user.password == _get_hash(password):
         return user
