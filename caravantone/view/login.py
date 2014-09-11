@@ -6,6 +6,7 @@ from pyramid.response import Response
 
 from caravantone.view.util import require_login
 from caravantone.model.user import authenticate
+from caravantone.model.oauth import authorize_access, generate_authorization_url, hatena
 
 
 # @view_config(route_name='login', renderer='my_page.html')
@@ -28,7 +29,7 @@ def login_test(request):
     return Response('OK')
 
 # @app.route('/login/twitter')
-# def twitter():
+# def twitter_oauth():
 #     return redirect(generate_authorization_url(Provider.twitter)[0])
 #
 #
@@ -45,14 +46,14 @@ def login_test(request):
 #     else:
 #         # TODO: redirect and show errors
 #         raise Exception()
-#
-#
-# @app.route('/login/hatena')
-# def hatena():
-#     return redirect(generate_authorization_url(Provider.hatena)[0])
-#
-#
-# @app.route('/login/hatena/authorize')
-# def hatena_authorize():
-#     tokens = authorize_access(Provider.hatena, request.url)
-#     return ','.join([tokens.get('oauth_token'), tokens.get('oauth_token_secret')])
+
+
+@view_config(route_name='login_hatena')
+def hatena_oauth(request):
+    return HTTPFound(location=generate_authorization_url(hatena, request.host_url)[0])
+
+
+@view_config(route_name='login_hatena_authorize')
+def hatena_authorize(request):
+    tokens = authorize_access(hatena, request.params['oauth_token'], request.params['oauth_verifier'])
+    return Response(','.join([tokens.get('oauth_token'), tokens.get('oauth_token_secret')]))

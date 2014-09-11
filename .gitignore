@@ -17,3 +17,4 @@ pip-log.txt
 /work
 .vagrant
 config.py
+secret.ini
