@@ -9,15 +9,15 @@ from caravantone.repository import user_repository
 def require_login(f):
     """decorate function that require login session."""
     @wraps(f)
-    def _wrapper(request, *args, **kwargs):
+    def _wrapper(context, request, *args, **kwargs):
         auth = authenticated_userid(request)
         if not auth:
             return HTTPUnauthorized('No auth')
         uid, _ = auth.split(':')
         user = user_repository.find_by_id(uid)
         if not user:
-            HTTPUnauthorized('Illegal session state')
-        return f(request, *args, **kwargs)
+            return HTTPUnauthorized('Illegal session state')
+        return f(context, request, user, *args, **kwargs)
     return _wrapper
 
 

@@ -19,7 +19,10 @@ def includeme(config):
     config.add_route('login_test', '/login/test')
     config.add_route('login_hatena', '/login/hatena')
     config.add_route('login_hatena_authorize', '/login/hatena/authorize')
+    config.add_route('artists', '/artists')
+    config.add_route('artists_suggest', '/artists/suggest')
     config.scan('.view.login')
+    config.scan('.view.artist')
 
     # static view
     config.add_route('static', '/*subpath')

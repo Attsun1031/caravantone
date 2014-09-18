@@ -94,17 +94,6 @@ def _generate_key(provider_name, key):
     return '{}:{}'.format(provider_name, key)
 
 
-#class Provider(Enum):
-
-    # twitter = ('twitter', 1, 'https://api.twitter.com/oauth/request_token',
-    #            'https://api.twitter.com/oauth/authenticate', 'https://api.twitter.com/oauth/access_token',
-    #            '/login/twitter/authorize')
-    #
-    # hatena = ('hatena', 2, 'https://www.hatena.com/oauth/initiate',
-    #           'https://www.hatena.ne.jp/oauth/authorize', 'https://www.hatena.com/oauth/token',
-    #           '/login/hatena/authorize')
-
-
 class OauthTokenForm(Form):
     access_token = StringField(validators=[validators.DataRequired()])
     access_secret = StringField(validators=[validators.DataRequired()])

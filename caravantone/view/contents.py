@@ -6,6 +6,8 @@ from caravantone.view.util import require_login
 from caravantone.external.youtube import search as search_from_youtube
 
 
+# TODO: pyramidに書き換える
+
 @app.route("/contents", methods=['GET'])
 @require_login
 def index_contents(user):

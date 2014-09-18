@@ -11,7 +11,7 @@ from caravantone.model.oauth import authorize_access, generate_authorization_url
 
 # @view_config(route_name='login', renderer='my_page.html')
 @view_config(route_name='login')
-def user(request):
+def user(context, request):
     u = authenticate(request.POST.get('name'), request.POST.get('password'))
     if u:
         # recreate session
@@ -25,8 +25,8 @@ def user(request):
 
 @view_config(route_name='login_test')
 @require_login
-def login_test(request):
-    return Response('OK')
+def login_test(context, request, user):
+    return Response(user.name)
 
 # @app.route('/login/twitter')
 # def twitter_oauth():

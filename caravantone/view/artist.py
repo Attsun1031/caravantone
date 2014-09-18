@@ -1,39 +1,38 @@
 # -*- coding: utf-8 -*-
-from flask import request, jsonify
+from pyramid.view import view_config
 
-from caravantone import app
-from caravantone.view.util import require_login, jsonify_list
+from caravantone.view.util import require_login
 from caravantone.model.artist import Artist
 from caravantone.es.artist_suggestion import suggest_artist
 from caravantone.repository import artist_repository, user_repository
 
 
-@app.route("/artists", methods=['POST'])
+@view_config(route_name="artists", request_method='POST', renderer='json')
 @require_login
-def create(user):
+def create(context, request, user):
     """create new artist data
 
     :param user: current user
     :return: Response
     """
-    artist = artist_repository.find_by_freebase_topic_id(request.form.get('freebase_topic_id'))
+    artist = artist_repository.find_by_freebase_topic_id(request.params.get('freebase_topic_id'))
 
     if not artist:
-        artist = Artist(name=request.form.get('name'), freebase_topic_id=request.form.get('freebase_topic_id'))
+        artist = Artist(name=request.params.get(r'name'), freebase_topic_id=request.params.get('freebase_topic_id'))
     user.check_artists(artist)
     user_repository.save(user)
 
-    return jsonify(name=artist.name)
+    return dict(name=artist.name)
 
 
-@app.route("/artists/suggest", methods=['GET'])
+@view_config(route_name='artists_suggest', request_method='GET', renderer='json')
 @require_login
-def suggest(user):
+def suggest(context, request, user):
     """suggest artist name
 
     :param user: current user
     :return: Response
     """
-    name = request.args.get('name', '')
+    name = request.params.get('name', '')
     artists = suggest_artist(name)
-    return jsonify_list([{'name': artist.name, 'id': artist.artist_id} for artist in artists])
+    return dict(result=[{'name': artist.name, 'id': artist.artist_id} for artist in artists])
