@@ -9,6 +9,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from sqlalchemy import engine_from_config
 
 from .dao import Base, db_session
+from .resources import root_factory
 
 
 s_view = static_view('caravantone:static', use_subpath=True)
@@ -21,12 +22,14 @@ def includeme(config):
     config.add_route('login_hatena_authorize', '/login/hatena/authorize')
     config.add_route('artists', '/artists')
     config.add_route('artists_suggest', '/artists/suggest')
+    # config.add_route('resource', '/resource')
     config.scan('.view.login')
     config.scan('.view.artist')
 
     # static view
-    config.add_route('static', '/*subpath')
-    config.add_view('caravantone.s_view', route_name='static')
+    # resourceと競合する。
+    # config.add_route('static', '/*subpath')
+    # config.add_view('caravantone.s_view', route_name='static')
 
 
 def configure_database(settings):
@@ -39,7 +42,7 @@ def configure_database(settings):
 def main(global_config, **settings):
     configure_database(settings)
 
-    config = Configurator(settings=settings)
+    config = Configurator(settings=settings, root_factory=root_factory)
 
     # secrets
     secret = ConfigParser()

@@ -36,3 +36,10 @@ def suggest(context, request, user):
     name = request.params.get('name', '')
     artists = suggest_artist(name)
     return dict(result=[{'name': artist.name, 'id': artist.artist_id} for artist in artists])
+
+
+from caravantone.resources import PathResource
+from pyramid.traversal import find_resource
+@view_config(context=PathResource, renderer='json')
+def path(context, request):
+    return {'value': 'Resource', 'type': str(type(context))}
