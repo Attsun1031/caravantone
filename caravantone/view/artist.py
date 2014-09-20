@@ -38,8 +38,25 @@ def suggest(context, request, user):
     return dict(result=[{'name': artist.name, 'id': artist.artist_id} for artist in artists])
 
 
-from caravantone.resources import PathResource
-from pyramid.traversal import find_resource
+from caravantone.resources import PathResource, ArtistsResource, ArtistResource
 @view_config(context=PathResource, renderer='json')
 def path(context, request):
     return {'value': 'Resource', 'type': str(type(context))}
+
+
+# Resourceを使ってREST APIを定義してみる
+@view_config(route_name='r_artists', context=ArtistsResource, renderer='json', request_method='POST')
+def r_create(context, request):
+    artist = context.create(request.params['name'])
+    return {'name': artist.name, 'id': artist.id}
+
+
+@view_config(route_name='r_artists', context=ArtistResource, renderer='json', request_method='GET')
+def r_get(context, request):
+    return {'key': context.key}
+
+
+# nameの実験
+@view_config(route_name='r_artists', context=ArtistResource, renderer='json', request_method='GET', name='edit')
+def r_edit(context, request):
+    return {'edit': context.key}

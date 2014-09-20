@@ -60,13 +60,11 @@ class UserRepository(DBSupport, RepositoryBase):
 
     _mapper = UserMapper(ArtistMapper(), OauthTokenMapper())
 
-    _query_for_find_by_oauth_token = UserRecord.query.join(OauthTokenRecord)
-
     def find_by_oauth_token(self, token, secret, provider_type, one=True):
         conditions = (OauthTokenRecord.access_token == token,
                       OauthTokenRecord.access_secret == secret,
                       OauthTokenRecord.provider_type == provider_type)
-        data = self._query_for_find_by_oauth_token.filter(*conditions)
+        data = UserRecord.query.join(OauthTokenRecord).filter(*conditions)
         if one:
             obj = data.first()
             if obj is not None:

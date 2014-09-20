@@ -23,6 +23,7 @@ def includeme(config):
     config.add_route('artists', '/artists')
     config.add_route('artists_suggest', '/artists/suggest')
     # config.add_route('resource', '/resource')
+    config.add_route('r_artists', '/r/*traverse', factory=root_factory)
     config.scan('.view.login')
     config.scan('.view.artist')
 
@@ -42,7 +43,7 @@ def configure_database(settings):
 def main(global_config, **settings):
     configure_database(settings)
 
-    config = Configurator(settings=settings, root_factory=root_factory)
+    config = Configurator(settings=settings)
 
     # secrets
     secret = ConfigParser()
