@@ -3,7 +3,7 @@
 <h1>Hi, {{ user.name }} !!</h1>
 <div id="register_artist">
     <span>アーティスト登録</span>
-    <form action="/artists" method="post">
+    <form action="/users/{{  user.id }}/artists" method="post">
         <input type="text" name="name">
         <input type="text" name="freebase_topic_id">
         <button type="submit">送信</button>
