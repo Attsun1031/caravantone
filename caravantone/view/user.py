@@ -1,10 +1,29 @@
 # -*- coding: utf-8 -*-
-from flask import render_template
+from pyramid.view import view_config
+from pyramid.httpexceptions import exception_response
+
 from .util import require_login
-from caravantone import app
+from caravantone.resources import UserResource
 
 
-@app.route("/user", methods=['GET'])
+@view_config(route_name="users", context=UserResource, request_method='GET', renderer='my_page.html')
 @require_login
-def user_index(user):
-    return render_template('my_page.html', user=user)
+def index(context, request, user):
+    u = context.retrieve()
+    return {'user': {'name': u.name, 'id': u.id}}
+
+
+@view_config(route_name="users", context=UserResource, request_method='POST', renderer='json', name='artists')
+@require_login
+def add_artist(context, request, user):
+    """create new artist data
+
+    :param user: current user
+    :return: Response
+    """
+    artist = context.add_artist(user, request.params['name'], request.params.get('freebase_topic_id'))
+    if artist:
+        request.response.status = '201 Created'
+        return dict(name=artist.name)
+    else:
+        raise exception_response(500)

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import caravantone.testing as testing
-testing.setup4testing()
 
 import caravantone.model.user as user
 from caravantone.model.base import ValidationError
@@ -12,9 +11,10 @@ from caravantone.dao import db_session, OauthTokenRecord, UserRecord, ArtistReco
 
 class TestWhenSignUpWithExistingOauth(testing.DBTestCaseBase):
 
-    def _setUp(self):
+    def setUp(self):
+        super(TestWhenSignUpWithExistingOauth, self).setUp()
         self.user_name = 'user1'
-        self.u = UserRecord(name='user1')
+        self.u = UserRecord(name='user1', password='pass')
         self.o = OauthTokenRecord(provider_type=1, access_token='token', access_secret='secret', user=self.u)
         db_session.add_all([self.u, self.o])
         db_session.commit()
@@ -36,19 +36,12 @@ class TestWhenSignUpWithExistingOauth(testing.DBTestCaseBase):
 
 class TestWhenSignUpWithNewOauth(testing.DBTestCaseBase):
 
-    def test_then_new_user_id_returned(self):
-        # exercise SUT
-        user_id = user.sign_up_with_oauth('token', 'secret', 1, 'user1').id
-
-        # verify
-        self.assertEqual(1, user_id)
-
     def test_then_new_user_registered(self):
         # exercise SUT
         model = user.sign_up_with_oauth('token', 'secret', 1, 'user1')
 
         # verify
-        u = UserRecord.query.get(1)
+        u = UserRecord.query.get(model.id)
         self.assertEqual(u.name, model.name)
 
     def test_then_new_oauth_token_registered(self):

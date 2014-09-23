@@ -45,6 +45,16 @@ class DBSupport(object):
     def _after_save(self, model, data):
         pass
 
+    def delete_by_id(self, ident, flush=True):
+        data = self._dao_class.query.with_lockmode('update').get(ident)
+        self.session.delete(data)
+        if flush:
+            try:
+                self.session.commit()
+            except Exception as e:
+                self.session.rollback()
+                raise e
+
 
 class MapperBase(metaclass=ABCMeta):
     @abstractmethod

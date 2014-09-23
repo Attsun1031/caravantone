@@ -9,6 +9,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from sqlalchemy import engine_from_config
 
 from .dao import Base, db_session
+from .resources import artists_factory, users_factory
 
 
 s_view = static_view('caravantone:static', use_subpath=True)
@@ -21,16 +22,22 @@ def includeme(config):
     config.add_route('login_hatena_authorize', '/login/hatena/authorize')
     config.add_route('artists', '/artists')
     config.add_route('artists_suggest', '/artists/suggest')
+    config.add_route('artists', '/artists/*traverse', factory=artists_factory)
+    config.add_route('users', '/users/*traverse', factory=users_factory)
     config.scan('.view.login')
     config.scan('.view.artist')
+    config.scan('.view.user')
+
+    config.add_static_view(name='static', path='caravantone:static')
 
     # static view
-    config.add_route('static', '/*subpath')
-    config.add_view('caravantone.s_view', route_name='static')
+    # resourceと競合する。
+    # config.add_route('static', '/*subpath')
+    # config.add_view('caravantone.s_view', route_name='static')
 
 
 def configure_database(settings):
-    engine = engine_from_config(settings, 'sqlalchemy.')
+    engine = engine_from_config(settings, 'sqlalchemy.', echo=True)
     db_session.configure(bind=engine)
     Base.metadata.bind = engine
     Base.query = db_session.query_property()

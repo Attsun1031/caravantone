@@ -46,6 +46,8 @@ hatena = Provider('hatena', 2,
                   'https://www.hatena.com/oauth/token',
                   '/login/hatena/authorize')
 
+provider_map = {twitter.type_num: twitter, hatena.type_num: hatena}
+
 
 def includeme(config):
     settings = config.get_settings()
@@ -110,7 +112,4 @@ class OauthToken(ValueObject):
         if self._provider is None and self._provider_type is None:
             raise ValueError('provider_type or provider_type is required')
         if self._provider is None:
-            valid_providers = [p for p in Provider if p.type_num == self._provider_type]
-            if not valid_providers:
-                raise ValueError('invalid provider_type: {}'.format(self._provider_type))
-            self._provider = valid_providers[0]
+            self._provider = provider_map[self._provider_type]

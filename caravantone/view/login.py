@@ -9,7 +9,6 @@ from caravantone.model.user import authenticate
 from caravantone.model.oauth import authorize_access, generate_authorization_url, hatena
 
 
-# @view_config(route_name='login', renderer='my_page.html')
 @view_config(route_name='login')
 def user(context, request):
     u = authenticate(request.POST.get('name'), request.POST.get('password'))
