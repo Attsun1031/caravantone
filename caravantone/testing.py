@@ -6,6 +6,11 @@ from unittest import TestCase
 import pyramid.testing as testing
 
 
+config = ConfigParser()
+config.read(os.path.join(os.path.dirname(__file__), 'testing.ini'))
+settings = dict(config['app:main'])
+
+
 def assert_record_equal(obj, expected, actual):
     """equality assertion function for sqlalchemy ORM object.
 
@@ -35,9 +40,7 @@ class DBMixIn(object):
     @classmethod
     def setUpClass(cls):
         from sqlalchemy import engine_from_config
-        config = ConfigParser()
-        config.read(os.path.join(os.path.dirname(__file__), 'testing.ini'))
-        cls.engine = engine_from_config(config['default'], 'sqlalchemy.')
+        cls.engine = engine_from_config(settings, 'sqlalchemy.')
 
     def setUp(self):
         super(DBMixIn, self).setUp()
@@ -65,3 +68,19 @@ class DBTestCaseBase(DBMixIn, TestCaseBase):
     """base class for testing which touches database"""
 
 
+class IntegrationTestBase(DBTestCaseBase):
+    """base class for integration testing"""
+
+
+class FunctionalTestBase(DBTestCaseBase):
+    @classmethod
+    def setUpClass(cls):
+        from caravantone import main
+        from caravantone.dao import db_session
+        cls.app = main({}, **settings)
+        cls.engine = db_session.bind
+
+    def setUp(self):
+        from webtest import TestApp
+        self.app = TestApp(self.app)
+        super(IntegrationTestBase, self).setUp()
