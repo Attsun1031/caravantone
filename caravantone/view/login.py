@@ -10,7 +10,7 @@ from caravantone.model.oauth import authorize_access, generate_authorization_url
 
 
 @view_config(route_name='login')
-def user(context, request):
+def login(context, request):
     u = authenticate(request.POST.get('name'), request.POST.get('password'))
     if u:
         # recreate session
