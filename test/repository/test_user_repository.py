@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from caravantone.testing import setup4testing, TestCaseBase, assert_record_equal, DBTestCaseBase
-setup4testing()
+from caravantone.testing import TestCaseBase, DBTestCaseBase, assert_record_equal
 import caravantone.repository.user as user
 from caravantone.repository import user_repository
 from caravantone.repository.artist import ArtistMapper
@@ -11,6 +10,7 @@ from caravantone.dao import UserRecord, OauthTokenRecord, ArtistRecord
 class TestUserMapper(TestCaseBase):
 
     def setUp(self):
+        super(TestUserMapper, self).setUp()
         self.mapper = user.UserMapper(ArtistMapper(), user.OauthTokenMapper())
 
     def test_without_relation_then_no_relation_loaded(self):
@@ -51,16 +51,18 @@ class TestUserRepository(DBTestCaseBase):
         u = User(name='hoge')
         user_repository.save(u)
 
-        record = UserRecord.query.get(1)
+        um = user_repository.find_by_name('hoge')
+
+        record = UserRecord.query.get(um.id)
         self.assertEqual(u.id, record.id)
         self.assertEqual(u.name, record.name)
 
     def test_update_user(self):
         self.test_insert_user()
 
-        u = user_repository.find_by_id(1)
-        u._name = 'fuga'
-        user_repository.save(u)
+        um = user_repository.find_by_name('hoge')
+        um._name = 'fuga'
+        user_repository.save(um)
 
-        record = UserRecord.query.get(1)
+        record = UserRecord.query.get(um.id)
         self.assertEqual(record.name, 'fuga')

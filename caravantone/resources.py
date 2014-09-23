@@ -79,7 +79,6 @@ class UserResource(object):
         user_repository.delete_by_id(self.key)
 
     def add_artist(self, user, name, freebase_topic_id=None):
-        # TODO: userはuser_factoryでこのインスタンス生成時に渡すようにしたい。
         artist = artist_repository.find_by_freebase_topic_id(freebase_topic_id)
 
         if not artist:

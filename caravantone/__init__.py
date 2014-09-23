@@ -22,7 +22,7 @@ def includeme(config):
     config.add_route('login_hatena_authorize', '/login/hatena/authorize')
     config.add_route('artists', '/artists')
     config.add_route('artists_suggest', '/artists/suggest')
-    config.add_route('r_artists', '/r_artists/*traverse', factory=artists_factory)
+    config.add_route('artists', '/artists/*traverse', factory=artists_factory)
     config.add_route('users', '/users/*traverse', factory=users_factory)
     config.scan('.view.login')
     config.scan('.view.artist')

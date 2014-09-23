@@ -16,7 +16,7 @@ class UserRecord(Base):
     id = Column(INTEGER(unsigned=True), primary_key=True)
     name = Column(String(255), nullable=False)
     profile = Column(Text, nullable=True)
-    password = Column(String(255), nullable=False)
+    password = Column(String(255), nullable=True)   # oauth認証があり得る
 
     checked_artists = relationship('ArtistRecord',
                                    secondary=UserCheckedArtistRecord.__table__,

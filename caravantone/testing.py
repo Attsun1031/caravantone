@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
-
+import os
+from configparser import ConfigParser
 from unittest import TestCase
 
-
-def setup4testing():
-    """overwrite configurations for testing"""
-    from caravantone.app import app
-    from caravantone.view import configure
-    app.config.from_object('caravantone.config.TestConfig')
-    configure(app)
-    app.config['TESTING'] = True
+import pyramid.testing as testing
 
 
 def assert_record_equal(obj, expected, actual):
@@ -26,46 +20,48 @@ def assert_record_equal(obj, expected, actual):
 
 
 class TestCaseBase(TestCase):
-    pass
+
+    def setUp(self):
+        self.config = testing.setUp()
+
+    def tearDown(self):
+        testing.tearDown()
 
 
 class DBMixIn(object):
 
+    engine = None
+
+    @classmethod
+    def setUpClass(cls):
+        from sqlalchemy import engine_from_config
+        config = ConfigParser()
+        config.read(os.path.join(os.path.dirname(__file__), 'testing.ini'))
+        cls.engine = engine_from_config(config['default'], 'sqlalchemy.')
+
     def setUp(self):
         super(DBMixIn, self).setUp()
-        from sqlalchemy.exc import OperationalError
-        from caravantone.dao import Base
-        try:
-            Base.metadata.drop_all(checkfirst=False)
-        except OperationalError:
-            pass
-        Base.metadata.create_all(checkfirst=False)
 
-    def tearDown(self):
+        from caravantone.dao import db_session, Base
+        conn = self.engine.connect()
+        self.trans = conn.begin()
+
+        db_session.remove()
+
+        # engineもconnectionもConnectableインターフェースを実装するオブジェクトなので代替可能な様子。
+        # sqlalchemyのConnectionオブジェクトは、rawなコネクションを管理するオブジェクトでありコネクションそのものではない。
+        db_session.configure(bind=conn)
+        Base.metadata.bind = conn
+        Base.query = db_session.query_property()
+
+    def doCleanups(self):
+        super(DBMixIn, self).doCleanups()
         from caravantone.dao import db_session
+        self.trans.rollback()
         db_session.close()
 
 
 class DBTestCaseBase(DBMixIn, TestCaseBase):
     """base class for testing which touches database"""
 
-    def setUp(self):
-        super(DBTestCaseBase, self).setUp()
-        # avoid to write `super.setUp` at each subclass.
-        self._setUp()
 
-    def _setUp(self):
-        pass
-
-
-class AppTestBase(DBMixIn, TestCaseBase):
-
-    def setUp(self):
-        super(AppTestBase, self).setUp()
-        from caravantone.app import app
-        self.app = app.test_client()
-        # avoid to write `super.setUp` at each subclass.
-        self._setUp()
-
-    def _setUp(self):
-        pass

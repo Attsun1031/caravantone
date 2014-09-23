@@ -7,9 +7,9 @@ from caravantone.view.util import require_login
 
 
 # Resourceを使ってREST APIを定義してみる
-@view_config(route_name='r_artists', context=ArtistsResource, renderer='json', request_method='POST')
+@view_config(route_name='artists', context=ArtistsResource, renderer='json', request_method='POST')
 @require_login
-def r_create(context, request):
+def create(context, request):
     artist = context.create(request.params['name'])
     if artist:
         request.response.status = '201 Created'
@@ -18,9 +18,9 @@ def r_create(context, request):
         raise exception_response(500)
 
 
-@view_config(route_name='r_artists', context=ArtistResource, renderer='json', request_method='GET')
+@view_config(route_name='artists', context=ArtistResource, renderer='json', request_method='GET')
 @require_login
-def r_get(context, request):
+def get(context, request):
     artist = context.retrieve()
     if artist:
         return {'name': artist.name}
@@ -28,14 +28,14 @@ def r_get(context, request):
         raise exception_response(404)
 
 
-@view_config(route_name='r_artists', context=ArtistResource, renderer='json', request_method='DELETE')
+@view_config(route_name='artists', context=ArtistResource, renderer='json', request_method='DELETE')
 @require_login
 def delete(context, request):
     context.delete()
     request.response.status = '204 No Content'
 
 
-@view_config(route_name='r_artists', context=ArtistsResource, renderer='json', request_method='GET', name='suggest')
+@view_config(route_name='artists', context=ArtistsResource, renderer='json', request_method='GET', name='suggest')
 @require_login
 def suggest(context, request):
     return context.suggest(request.params['name'])
