@@ -73,6 +73,7 @@ class IntegrationTestBase(DBTestCaseBase):
 
 
 class FunctionalTestBase(DBTestCaseBase):
+    """base class for functional testing"""
     @classmethod
     def setUpClass(cls):
         from caravantone import main
@@ -83,4 +84,4 @@ class FunctionalTestBase(DBTestCaseBase):
     def setUp(self):
         from webtest import TestApp
         self.app = TestApp(self.app)
-        super(IntegrationTestBase, self).setUp()
+        super(FunctionalTestBase, self).setUp()
