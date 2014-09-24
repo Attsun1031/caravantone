@@ -26,13 +26,9 @@ def includeme(config):
     config.scan('.view.login')
     config.scan('.view.artist')
     config.scan('.view.user')
+    config.scan('.view.error')
 
     config.add_static_view(name='static', path='caravantone:static')
-
-    # static view
-    # resourceと競合する。
-    # config.add_route('static', '/*subpath')
-    # config.add_view('caravantone.s_view', route_name='static')
 
 
 def configure_database(settings):

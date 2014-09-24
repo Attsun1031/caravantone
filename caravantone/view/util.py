@@ -2,7 +2,7 @@
 from functools import wraps
 
 from pyramid.security import authenticated_userid
-from pyramid.httpexceptions import HTTPUnauthorized
+from pyramid.httpexceptions import exception_response
 from caravantone.repository import user_repository
 
 
@@ -12,11 +12,11 @@ def require_login(f):
     def _wrapper(context, request, *args, **kwargs):
         auth = authenticated_userid(request)
         if not auth:
-            return HTTPUnauthorized('No auth')
+            raise exception_response(401)
         uid, _ = auth.split(':')
         user = user_repository.find_by_id(uid)
         if not user:
-            return HTTPUnauthorized('Illegal session state')
+            return exception_response(401)
         return f(context, request, user, *args, **kwargs)
     return _wrapper
 

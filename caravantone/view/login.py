@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import remember
@@ -9,8 +11,13 @@ from caravantone.model.user import authenticate
 from caravantone.model.oauth import authorize_access, generate_authorization_url, hatena
 
 
+logger = logging.getLogger(__name__)
+
+
 @view_config(route_name='login')
 def login(context, request):
+    logger.debug('In the login')
+    logger.info('User name: {name}, password: {password}'.format_map(request.POST))
     u = authenticate(request.POST.get('name'), request.POST.get('password'))
     if u:
         # recreate session
