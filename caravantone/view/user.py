@@ -10,6 +10,8 @@ from caravantone.resources import UserResource
 @require_login
 def index(context, request, user):
     u = context.retrieve()
+    if not u:
+        raise exception_response(404)
     return {'user': {'name': u.name, 'id': u.id}}
 
 
