@@ -4,9 +4,7 @@
 
 import json
 import requests
-from werkzeug.utils import cached_property
 
-from caravantone.app import app
 from caravantone.dao import redis_session
 
 
@@ -31,7 +29,7 @@ def search(keyword, cache_expiration=one_day, next_page_token='', ignore_cache=F
     key = '{}:{}:{}'.format('youtube_search', next_page_token, keyword)
     cache = redis_session.get(key)
     if cache is None or ignore_cache:
-        url = youtube_api.format(keyword, app.config['YOUTUBE_DEVELOPER_KEY'])
+        # url = youtube_api.format(keyword, app.config['YOUTUBE_DEVELOPER_KEY'])
         if next_page_token:
             url += '&pageToken={}'.format(next_page_token)
         res = requests.get(url)
@@ -56,19 +54,19 @@ class YoutubeVideo(object):
     def item_data(self):
         return self.__item_data
 
-    @cached_property
+    # @cached_property
     def video_id(self):
         return self.item_data['id']['videoId']
 
-    @cached_property
+    # @cached_property
     def title(self):
         return self.item_data['snippet']['title']
 
-    @cached_property
+    # @cached_property
     def url(self):
         return self.video_url_template.format(self.video_id)
 
-    @cached_property
+    # @cached_property
     def published_at(self):
         return self.item_data['snippet']['publishedAt']
 

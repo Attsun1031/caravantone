@@ -26,7 +26,9 @@ def login(context, request):
         response.headerlist.extend(auth)
         return response
     else:
-        raise Exception('Failed to authenticate user')
+        request.session.flash('ログインに失敗しました。', queue='error', allow_duplicate=False)
+        response = HTTPFound(location='/')
+        return response
 
 
 @view_config(route_name='login_test')

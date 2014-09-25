@@ -6,6 +6,11 @@
 </head>
 <body>
 <h1>Welcome to Caravan Tone!</h1>
+<ul>
+{% for msg in request.session.pop_flash(queue='error') %}
+    <li>{{ msg }}</li>
+{% endfor %}
+</ul>
 <div>
     <a href="/login/twitter"><img src="https://dev.twitter.com/sites/default/files/images_documentation/sign-in-with-twitter-gray.png"></a>
 </div>

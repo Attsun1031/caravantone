@@ -5,6 +5,7 @@ from pyramid.config import Configurator
 from pyramid.static import static_view
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.session import UnencryptedCookieSessionFactoryConfig
 
 from sqlalchemy import engine_from_config
 
@@ -14,8 +15,11 @@ from .resources import artists_factory, users_factory
 
 s_view = static_view('caravantone:static', use_subpath=True)
 
+sess_factory = UnencryptedCookieSessionFactoryConfig('secret')
+
 
 def includeme(config):
+    config.add_route('top', '/')
     config.add_route('login', '/login/user')
     config.add_route('login_test', '/login/test')
     config.add_route('login_hatena', '/login/hatena')
@@ -23,6 +27,7 @@ def includeme(config):
     config.add_route('artists_suggest', '/artists/suggest')
     config.add_route('artists', '/artists/*traverse', factory=artists_factory)
     config.add_route('users', '/users/*traverse', factory=users_factory)
+    config.scan('.view.index')
     config.scan('.view.login')
     config.scan('.view.artist')
     config.scan('.view.user')
@@ -41,7 +46,7 @@ def configure_database(settings):
 def main(global_config, **settings):
     configure_database(settings)
 
-    config = Configurator(settings=settings)
+    config = Configurator(settings=settings, session_factory=sess_factory)
 
     # secrets
     secret = ConfigParser()
