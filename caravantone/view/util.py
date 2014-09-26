@@ -20,7 +20,6 @@ def require_login(f):
         return f(context, request, user, *args, **kwargs)
     return _wrapper
 
-
 '''
 def _default_error_handler(form):
     abort(400, 'Illegal params: {}'.format(dumps(form.errors)))

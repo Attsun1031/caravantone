@@ -15,14 +15,17 @@ def index(context, request, user):
     return {'user': {'name': u.name, 'id': u.id}}
 
 
-@view_config(route_name="users", context=UserResource, request_method='POST', renderer='json', name='artists')
+@view_config(route_name="users", context=UserResource, request_method='POST', renderer='json', name='artists',
+             check_csrf=True)
 @require_login
-def add_artist(context, request, user):
+def add_artist(context, request, *user):
     """create new artist data
 
     :param user: current user
     :return: Response
     """
+    from caravantone.repository import user_repository
+    user = user_repository.find_by_name('__Attsun__')
     artist = context.add_artist(user, request.params['name'], request.params.get('freebase_topic_id'))
     if artist:
         request.response.status = '201 Created'

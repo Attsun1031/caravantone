@@ -6,6 +6,7 @@
     <form action="/users/{{  user.id }}/artists" method="post">
         <input type="text" name="name">
         <input type="text" name="freebase_topic_id">
+        <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
         <button type="submit">送信</button>
     </form>
 </div>
