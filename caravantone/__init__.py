@@ -11,6 +11,7 @@ from sqlalchemy import engine_from_config
 
 from .dao import Base, db_session
 from .resources import artists_factory, users_factory
+from .request import CaravantoneRequest
 
 
 s_view = static_view('caravantone:static', use_subpath=True)
@@ -46,7 +47,7 @@ def configure_database(settings):
 def main(global_config, **settings):
     configure_database(settings)
 
-    config = Configurator(settings=settings, session_factory=sess_factory)
+    config = Configurator(settings=settings, session_factory=sess_factory, request_factory=CaravantoneRequest)
 
     # secrets
     secret = ConfigParser()

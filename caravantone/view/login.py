@@ -31,10 +31,9 @@ def login(context, request):
         return response
 
 
-@view_config(route_name='login_test')
-@require_login
-def login_test(context, request, user):
-    return Response(user.name)
+@view_config(route_name='login_test', decorator=require_login)
+def login_test(context, request):
+    return Response(request.user.name)
 
 # @app.route('/login/twitter')
 # def twitter_oauth():

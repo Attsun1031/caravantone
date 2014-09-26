@@ -5,6 +5,8 @@ from unittest import TestCase
 
 import pyramid.testing as testing
 
+from caravantone.request import UserRetainRequetMixIn
+
 
 config = ConfigParser()
 config.read(os.path.join(os.path.dirname(__file__), 'testing.ini'))
@@ -22,6 +24,10 @@ def assert_record_equal(obj, expected, actual):
         a_attr = getattr(actual, column_name)
         msg = '{column_name} is not equal. expected: {e_attr}, actual: {a_attr}'.format(**locals())
         obj.assertEqual(e_attr, a_attr, msg)
+
+
+class DummyRequest(UserRetainRequetMixIn, testing.DummyRequest):
+    pass
 
 
 class TestCaseBase(TestCase):

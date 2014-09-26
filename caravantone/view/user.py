@@ -6,9 +6,8 @@ from .util import require_login
 from caravantone.resources import UserResource
 
 
-@view_config(route_name="users", context=UserResource, request_method='GET', renderer='my_page.html')
-@require_login
-def index(context, request, user):
+@view_config(route_name="users", context=UserResource, request_method='GET', renderer='my_page.html', decorator=require_login)
+def index(context, request):
     u = context.retrieve()
     if not u:
         raise exception_response(404)
@@ -16,17 +15,14 @@ def index(context, request, user):
 
 
 @view_config(route_name="users", context=UserResource, request_method='POST', renderer='json', name='artists',
-             check_csrf=True)
-@require_login
-def add_artist(context, request, *user):
+             check_csrf=True, decorator=require_login)
+def add_artist(context, request):
     """create new artist data
 
     :param user: current user
     :return: Response
     """
-    from caravantone.repository import user_repository
-    user = user_repository.find_by_name('__Attsun__')
-    artist = context.add_artist(user, request.params['name'], request.params.get('freebase_topic_id'))
+    artist = context.add_artist(request.user, request.params['name'], request.params.get('freebase_topic_id'))
     if artist:
         request.response.status = '201 Created'
         return dict(name=artist.name)

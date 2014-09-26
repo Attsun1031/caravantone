@@ -1,23 +1,16 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 
-from pyramid.security import authenticated_userid
-from pyramid.httpexceptions import exception_response
-from caravantone.repository import user_repository
+from pyramid.httpexceptions import HTTPUnauthorized
 
 
 def require_login(f):
     """decorate function that require login session."""
     @wraps(f)
-    def _wrapper(context, request, *args, **kwargs):
-        auth = authenticated_userid(request)
-        if not auth:
-            raise exception_response(401)
-        uid, _ = auth.split(':')
-        user = user_repository.find_by_id(uid)
-        if not user:
-            raise exception_response(401)
-        return f(context, request, user, *args, **kwargs)
+    def _wrapper(context, request):
+        if not request.user:
+            raise HTTPUnauthorized('Require login session')
+        return f(context, request)
     return _wrapper
 
 '''
