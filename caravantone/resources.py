@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+from logging import getLogger
 from caravantone.model.artist import Artist as ArtistModel
 from caravantone.model.user import User as UserModel
 from caravantone.repository import artist_repository, user_repository
 from caravantone.es.artist_suggestion import suggest_artist
+from caravantone.external.youtube import search as search_from_youtube
+
+
+logger = getLogger(__name__)
 
 
 def link(parent, child):
@@ -10,7 +15,7 @@ def link(parent, child):
     child.__parent__ = parent
 
 
-class RootResource(object):
+class RootResource:
 
     __name__ = __parent__ = None
 
@@ -32,7 +37,7 @@ class ArtistsResource(RootResource):
         return dict(result=[{'name': artist.name, 'id': artist.artist_id} for artist in artists])
 
 
-class ArtistResource(object):
+class ArtistResource:
 
     def __init__(self, key):
         self.__name__ = self.key = key
@@ -67,7 +72,7 @@ class UsersResource(RootResource):
         return new_user
 
 
-class UserResource(object):
+class UserResource:
 
     def __init__(self, key):
         self.__name__ = self.key = key
@@ -95,10 +100,36 @@ def users_factory(request):
     return users_resource
 
 
-# TODO: aritsts APIをリソースで引けるようにする。
-# http://zaiste.net/2013/12/building_a_restful_api_with_pyramid_resource_and_traversal/
-# http://www.slideshare.net/aodag/pyramid-39068836
-# http://pelican.aodag.jp/20140205-pyramid-controller-style.html
-# http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/traversal.html
-# http://docs.pylonsproject.jp/projects/pyramid-doc-ja/en/latest/narr/resources.html
-# http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/hybrid.html
+#
+# Contents
+#
+
+class ContentsResource(RootResource):
+    """Resource of contents collection"""
+
+    def __getitem__(self, item):
+        rsc = UserResource(item)
+        rsc.__parent__ = self
+        return rsc
+
+    def find(self, keyword, next_page_token=None):
+        search_result = search_from_youtube(keyword, next_page_token=next_page_token)
+        logger.info('Search from youtubue. count: {:d}'.format(len(search_result)))
+        items = [{'url': v.url, 'title': v.title, 'published_at': self._format_published_at(v.published_at)} for v in
+                 search_result.items]
+        return items
+
+    def _format_published_at(self, value):
+        """Strip time info from publishedAt value.
+
+        >>> _format_published_at('2014-01-01T12:40:10Z')
+        '2014-01-01'
+        """
+        return value[:10]
+
+
+contents_resource = ContentsResource()
+
+
+def contents_factory(request):
+    return contents_resource

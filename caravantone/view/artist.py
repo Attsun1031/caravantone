@@ -6,7 +6,6 @@ from caravantone.resources import ArtistsResource, ArtistResource
 from caravantone.view.util import require_login
 
 
-# Resourceを使ってREST APIを定義してみる
 @view_config(route_name='artists', context=ArtistsResource, renderer='json', request_method='POST',
              decorator=require_login)
 def create(context, request):

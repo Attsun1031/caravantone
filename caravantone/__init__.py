@@ -10,7 +10,7 @@ from pyramid.session import UnencryptedCookieSessionFactoryConfig
 from sqlalchemy import engine_from_config
 
 from .dao import Base, db_session
-from .resources import artists_factory, users_factory
+from .resources import artists_factory, users_factory, contents_factory
 from .request import CaravantoneRequest
 
 
@@ -25,13 +25,15 @@ def includeme(config):
     config.add_route('login_test', '/login/test')
     config.add_route('login_hatena', '/login/hatena')
     config.add_route('login_hatena_authorize', '/login/hatena/authorize')
-    config.add_route('artists_suggest', '/artists/suggest')
     config.add_route('artists', '/artists/*traverse', factory=artists_factory)
     config.add_route('users', '/users/*traverse', factory=users_factory)
+    config.add_route('contents_search', '/contents/search')
+    config.add_route('contents', '/contents', factory=contents_factory)
     config.scan('.view.index')
     config.scan('.view.login')
     config.scan('.view.artist')
     config.scan('.view.user')
+    config.scan('.view.contents')
     config.scan('.view.error')
 
     config.add_static_view(name='static', path='caravantone:static')
@@ -59,6 +61,7 @@ def main(global_config, **settings):
     config.add_jinja2_search_path('caravantone:templates', name='.html')
     config.include('.')
     config.include('.model.oauth')
+    config.include('.external.youtube')
 
     # security
     config.set_authentication_policy(AuthTktAuthenticationPolicy('__attsun__'))
